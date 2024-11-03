@@ -12,6 +12,7 @@ interface Post {
     avatar: string;
   };
   votes: number; // Assuming you have a votes count
+  createdAt: string; // Assuming you have a date for each post
 }
 
 export default function PostList() {

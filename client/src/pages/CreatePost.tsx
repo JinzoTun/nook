@@ -42,9 +42,9 @@ const CreatePost: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen h-72 flex flex-col ">
+    <main className="min-h-screen h-72 flex flex-col  w-full">
       <Header />
-      <Card  className="flex flex-col gap-4 p-6 w-3/4 justify-center h-1/2">
+      <Card  className="flex flex-col gap-4 p-6 self-center w-9/12 m-auto   justify-center h-1/2 ">
         <h1 className="text-3xl font-semibold">Create Post</h1>
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <Input
@@ -68,7 +68,7 @@ const CreatePost: React.FC = () => {
         </form>
         {message && <p className="mt-2">{message}</p>}
       </Card>
-    </div>
+    </main>
   );
 }
 

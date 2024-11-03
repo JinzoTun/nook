@@ -5,6 +5,7 @@ import axios from 'axios'; // To make API requests
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
+import { clearSessionVotes } from "@/utils/sessionUtils";
 
 import {
   DropdownMenu,
@@ -60,6 +61,7 @@ function Header() {
     setIsAuthenticated(false);
     setUserProfile(null); // Clear user profile on logout
     navigate('/');
+    clearSessionVotes(); // Clear session storage votes on logout
   };
 
   const getProfile = () => {
@@ -69,7 +71,7 @@ function Header() {
   return (
     <div className="sticky top-0 flex h-16 items-center gap-4 border-b bg-background px-4 md:px-6">
       <header className="flex h-16 justify-between w-screen items-center p-4 border-b-2">
-        <a className="text-3xl font-bold ml-6" href="/">nook</a>
+        <a className="text-3xl font-bold ml-6" href="/">Reddit</a>
 
         <div className="flex w-full max-w-sm items-center space-x-2">
           <form className="ml-auto flex-1 sm:flex-initial">

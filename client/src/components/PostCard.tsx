@@ -12,6 +12,7 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { ArrowDownIcon, ArrowUpIcon, ChatBubbleIcon, Share2Icon } from "@radix-ui/react-icons";
+import { formatDate } from "@/utils/formatDate"; 
 
 interface Post {
   _id: string;
@@ -22,6 +23,7 @@ interface Post {
     avatar: string;
   };
   votes: number;
+  createdAt: string;
 }
 
 interface PostCardProps {
@@ -33,16 +35,29 @@ export function PostCard({ post }: PostCardProps) {
   const [votedType, setVotedType] = useState<'upvote' | 'downvote' | null>(null);
   const [isVoting, setIsVoting] = useState(false);
 
-  // Load user's vote status from local storage on component mount
+  // Fetch all user votes for initial load and store them in session storage
   useEffect(() => {
-    const userVote = localStorage.getItem(`vote_${post._id}`);
-    if (userVote) {
-      setVotedType(userVote === 'upvote' ? 'upvote' : 'downvote');
+    const token = localStorage.getItem('token');
+    if (token) {
+      axios.get(`http://localhost:3000/api/votes`, {
+        headers: { token },
+      })
+      .then((response) => {
+        const votes = response.data.votes;
+        
+        // Store each vote in sessionStorage
+        Object.entries(votes).forEach(([postId, voteType]) => {
+          sessionStorage.setItem(`vote_${postId}`, voteType as string);
+          if (postId === post._id) setVotedType(voteType as 'upvote' | 'downvote');
+        });
+      })
+      .catch((error) => console.error("Error fetching votes:", error));
     }
   }, [post._id]);
 
+  // Handle voting on the post
   const handleVote = debounce(async (voteType: 'upvote' | 'downvote') => {
-    if (isVoting) return;  // Prevent multiple votes at the same time
+    if (isVoting) return;
 
     setIsVoting(true);
     const token = localStorage.getItem('token');
@@ -52,14 +67,14 @@ export function PostCard({ post }: PostCardProps) {
       // Undo vote
       updatedVotes = voteType === 'upvote' ? votes - 1 : votes + 1;
       setVotedType(null);
-      localStorage.removeItem(`vote_${post._id}`);
+      sessionStorage.removeItem(`vote_${post._id}`);
     } else {
       // User is voting or changing their vote
       if (votedType === 'upvote') updatedVotes = votes - 1;
       if (votedType === 'downvote') updatedVotes = votes + 1;
       updatedVotes = voteType === 'upvote' ? updatedVotes + 1 : updatedVotes - 1;
       setVotedType(voteType);
-      localStorage.setItem(`vote_${post._id}`, voteType);
+      sessionStorage.setItem(`vote_${post._id}`, voteType);
     }
 
     setVotes(updatedVotes);
@@ -69,29 +84,28 @@ export function PostCard({ post }: PostCardProps) {
         `http://localhost:3000/api/posts/${post._id}/vote`,
         { voteType },
         {
-          headers: {
-            token: token,
-          },
+          headers: { token },
         }
       );
 
       if (!response.data.success) {
         console.error("Vote failed:", response.data.message);
-        // If vote fails, revert votes
+        // Revert votes if there's an error
         setVotes(votes);
         setVotedType(null);
-        localStorage.removeItem(`vote_${post._id}`);
+        sessionStorage.removeItem(`vote_${post._id}`);
       }
     } catch (error) {
       console.error("Error voting:", error);
-      // Revert votes if error occurs
+      // Revert votes if there's an error
       setVotes(votes);
       setVotedType(null);
-      localStorage.removeItem(`vote_${post._id}`);
+      sessionStorage.removeItem(`vote_${post._id}`);
     } finally {
-      setIsVoting(false);  // Allow voting again
+      setIsVoting(false);
     }
-  }, 150);  // Debounce to avoid spamming
+  }, 150);
+  
 
   return (
     <Card className="w-full mt-8">
@@ -101,7 +115,7 @@ export function PostCard({ post }: PostCardProps) {
             <AvatarImage src={post.author.avatar || "https://placeholder.com/300x300"} alt="avatar" />
             <AvatarFallback>{post.author.username.charAt(0)}</AvatarFallback>
           </Avatar>
-          <p className="text-sm font-medium">{post.author.username}</p>
+          <p className="text-sm font-medium">{post.author.username} - {formatDate(post.createdAt)}</p>
         </div>
         <CardDescription>{post.title}</CardDescription>
       </CardHeader>

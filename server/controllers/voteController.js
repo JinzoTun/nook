@@ -86,3 +86,21 @@ export const getAllVotes = async (req, res) => {
   }
 }
 
+// get voteType for a specific post of user_id 
+export const getVote = async (req, res) => {
+  const { postId } = req.params;
+  const userId = req.user;
+  try {
+    const vote = await Vote.findOne({ postId, userId });
+    if (!vote) {
+      return res.status(200).json({ success: true, vote: null });
+    }
+
+    res.status(200).json({ success: true, vote: vote.voteType });
+
+  } catch (error) {
+    console.error("Error getting vote:", error);
+    return res.status(500).json({ success: false, message: "Internal server error." });
+  }
+}
+
