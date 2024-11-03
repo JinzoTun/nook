@@ -115,7 +115,7 @@ export function PostCard({ post }: PostCardProps) {
             <AvatarImage src={post.author.avatar || "https://placeholder.com/300x300"} alt="avatar" />
             <AvatarFallback>{post.author.username.charAt(0)}</AvatarFallback>
           </Avatar>
-          <p className="text-sm font-medium">{post.author.username} - {formatDate(post.createdAt)}</p>
+          <p className="text-sm font-medium">{post.author.username}  <span className="m-1 opacity-50 text-xs">{formatDate(post.createdAt)}</span></p>
         </div>
         <CardDescription>{post.title}</CardDescription>
       </CardHeader>

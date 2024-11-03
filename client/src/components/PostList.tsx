@@ -1,41 +1,53 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { PostCard } from "./PostCard";
+import { Button } from "./ui/button";
 
-// types/Post.ts (or wherever you prefer)
 interface Post {
-  _id: string; // Assuming you have an id for each post
+  _id: string;
   title: string;
   body: string;
   author: {
     username: string;
     avatar: string;
   };
-  votes: number; // Assuming you have a votes count
-  createdAt: string; // Assuming you have a date for each post
+  votes: number;
+  createdAt: string;
 }
 
 export default function PostList() {
-  const [posts, setPosts] = useState<Post[]>([]); // Initialize as an empty array
+  const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [page, setPage] = useState<number>(1);
+  const [hasMore, setHasMore] = useState<boolean>(true);
+
+  const fetchPosts = async (pageNumber: number) => {
+    try {
+      const response = await axios.get(`http://localhost:3000/api/posts?page=${pageNumber}&limit=10`);
+      console.log("API Response:", response.data);
+      if (response.data.posts.length > 0) {
+        setPosts((prevPosts) => [...prevPosts, ...response.data.posts]);
+      } else {
+        setHasMore(false); // No more posts to fetch
+      }
+    } catch (error) {
+      console.error("Error fetching posts:", error);
+      setError("Failed to fetch posts");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchPosts = async () => {
-      try {
-        const response = await axios.get("http://localhost:3000/api/posts"); // Ensure this is your endpoint
-        console.log("API Response:", response.data); // Log the response for debugging
-        setPosts(response.data.posts); // Adjust based on your response structure
-      } catch (error) {
-        console.error("Error fetching posts:", error);
-        setError("Failed to fetch posts");
-      } finally {
-        setLoading(false);
-      }
-    };
+    fetchPosts(page);
+  }, [page]);
 
-    fetchPosts();
-  }, []);
+  const loadMore = () => {
+    if (hasMore) {
+      setPage((prevPage) => prevPage + 1);
+    }
+  };
 
   if (loading) {
     return <div>Loading...</div>;
@@ -50,6 +62,11 @@ export default function PostList() {
       {posts.map((post) => (
         <PostCard key={post._id} post={post} />
       ))}
+      {hasMore && (
+        <Button onClick={loadMore}  className=" w-full mt-4">
+          Load More
+        </Button>
+      )}
     </div>
   );
 }
