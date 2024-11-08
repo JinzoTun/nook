@@ -4,10 +4,10 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 
 import userRoutes from './routes/usersRoutes.js'; // Import user routes
-import authRoutes from './routes/authRoutes.js'; // Assuming you have auth routes
-import postRoutes from './routes/postRoutes.js'
-import voteRoutes from "./routes/voteRoutes.js";
-
+import authRoutes from './routes/authRoutes.js'; // Import authentication routes
+import postRoutes from './routes/postRoutes.js' // Import post routes
+import voteRoutes from "./routes/voteRoutes.js";  // Import vote routes
+import commentsRoutes from './routes/commentsRoutes.js'; // Import comments routes
 
 dotenv.config();
 
@@ -35,8 +35,9 @@ app.use((err, req, res, next) => {
 // Define routes
 app.use('/api/auth', authRoutes); // Authentication routes
 app.use('/api/users', userRoutes); // User management routes
-app.use('/api/posts', postRoutes);
-app.use('/api', voteRoutes)
+app.use('/api/posts', postRoutes); // Post routes
+app.use('/api', voteRoutes); // Vote routes   TODO: !! change to /api/votes
+app.use('/api/comments', commentsRoutes); // Comment routes
 
 mongoose.connect(process.env.MONGO_URI)
   .then(() => {

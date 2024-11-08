@@ -21,13 +21,22 @@ export default function PostList() {
   const [error, setError] = useState<string | null>(null);
   const [page, setPage] = useState<number>(1);
   const [hasMore, setHasMore] = useState<boolean>(true);
+  const loadedPages = new Set<number>(); // Set to track loaded pages
 
   const fetchPosts = async (pageNumber: number) => {
+    if (loadedPages.has(pageNumber) || !hasMore) return; // Skip if page already loaded or no more posts
+
     try {
       const response = await axios.get(`http://localhost:3000/api/posts?page=${pageNumber}&limit=10`);
-      console.log("API Response:", response.data);
+      loadedPages.add(pageNumber); // Mark this page as loaded
+
       if (response.data.posts.length > 0) {
-        setPosts((prevPosts) => [...prevPosts, ...response.data.posts]);
+        setPosts((prevPosts) => [
+          ...prevPosts,
+          ...response.data.posts.filter(
+            (newPost: Post) => !prevPosts.some((existingPost) => existingPost._id === newPost._id)
+          )
+        ]);
       } else {
         setHasMore(false); // No more posts to fetch
       }
@@ -39,15 +48,33 @@ export default function PostList() {
     }
   };
 
-  useEffect(() => {
-    fetchPosts(page);
-  }, [page]);
-
   const loadMore = () => {
     if (hasMore) {
       setPage((prevPage) => prevPage + 1);
     }
   };
+
+  useEffect(() => {
+    fetchPosts(page);
+  }, [page]);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      // Check if the user has scrolled to the bottom of the page
+      const scrollPosition = window.innerHeight + document.documentElement.scrollTop;
+      const bottomPosition = document.documentElement.scrollHeight;
+
+      if (scrollPosition >= bottomPosition - 100 && hasMore) {
+        loadMore(); // Trigger load more when close to bottom
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    
+    return () => {
+      window.removeEventListener("scroll", handleScroll); // Cleanup event listener on unmount
+    };
+  }, [hasMore]);
 
   if (loading) {
     return <div>Loading...</div>;
@@ -63,7 +90,7 @@ export default function PostList() {
         <PostCard key={post._id} post={post} />
       ))}
       {hasMore && (
-        <Button onClick={loadMore}  className=" w-full mt-4">
+        <Button onClick={loadMore} className="w-full mt-4">
           Load More
         </Button>
       )}

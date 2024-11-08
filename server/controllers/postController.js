@@ -89,3 +89,29 @@ export const updateVoteCount = async (req, res) => {
     });
   }
 };
+
+
+// get post by id 
+export const getPost = async (req, res ) => {
+  const { id } = req.params;
+
+  try {
+    const post = await Post.findById(id).populate('author', 'username avatar');
+
+    if (!post) {
+      return res.status(404).json({ message: 'Post not found' });
+    }
+
+    res.status(200).json(post);
+  } catch (error) {
+    console.error('Error retrieving post:', error);
+    res.status(500).json({
+      message: 'Failed to retrieve post',
+      error: error.message || 'Internal Server Error',
+    });
+  }
+
+
+  
+
+}

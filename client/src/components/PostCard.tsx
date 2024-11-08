@@ -13,6 +13,7 @@ import { Separator } from "@/components/ui/separator";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { ArrowDownIcon, ArrowUpIcon, ChatBubbleIcon, Share2Icon } from "@radix-ui/react-icons";
 import { formatDate } from "@/utils/formatDate"; 
+// import Comments from "./Comments";
 
 interface Post {
   _id: string;
@@ -147,15 +148,22 @@ export function PostCard({ post }: PostCardProps) {
           </div>
 
           <Separator orientation="vertical" />
-          <div className="flex justify-center items-center w-1/3">
+          <a href={`/post/${post._id}`} className="flex justify-center items-center w-1/3">
+        
+        
             <ChatBubbleIcon />
-          </div>
+        
+          </a>
+          
           <Separator orientation="vertical" />
           <div className="flex justify-center items-center w-1/3">
             <Share2Icon />
           </div>
         </div>
       </CardFooter>
+
+      {/* Render comments if there are any     <Comments postId={post._id} />  */}
+ 
     </Card>
   );
 }

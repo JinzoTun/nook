@@ -31,6 +31,9 @@ function Header() {
   // Check for authentication status on component mount
   useEffect(() => {
     const token = localStorage.getItem('token');
+    if(!token || token === 'undefined' || token === 'null' || token === '') {  
+      return
+    }
     if (token) {
       setIsAuthenticated(true);
       fetchUserProfile(token); // Fetch user profile if authenticated
@@ -71,7 +74,7 @@ function Header() {
   return (
     <div className="sticky top-0 flex h-16 items-center gap-4 border-b bg-background px-4 md:px-6">
       <header className="flex h-16 justify-between w-screen items-center p-4 border-b-2">
-        <a className="text-3xl font-bold ml-6" href="/">Reddit</a>
+        <a className="text-3xl font-bold ml-6" href="/">Nook</a>
 
         <div className="flex w-full max-w-sm items-center space-x-2">
           <form className="ml-auto flex-1 sm:flex-initial">

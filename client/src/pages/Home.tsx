@@ -1,6 +1,7 @@
 import Header from "@/components/Header";
 import SideBar from "@/components/SideBar";
 import PostList  from "@/components/PostList";
+import DescriptionCard from "@/components/DescriptionCard";
 
 
 export default function Home() {
@@ -23,7 +24,7 @@ export default function Home() {
 
         {/* CardDescription fixed to the right */}
         <div className="hidden lg:block fixed top-16 right-0 lg:w-1/5 w-0 border-l-2 h-[calc(100vh-64px)] p-5">
-          <p>CardDescription</p>
+          <DescriptionCard />
         </div>
       </div>
     </>

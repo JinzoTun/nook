@@ -12,6 +12,7 @@ import Register from './pages/Register';
 import Login from "@/pages/Login";
 import Profile from "@/pages/Profile";
 import CreatePost from './pages/CreatePost';
+import PostPage from './pages/PostPage';
 
 const router = createBrowserRouter([
   {
@@ -33,6 +34,10 @@ const router = createBrowserRouter([
   {
     path: "/post",
     element: <CreatePost/>
+  },
+  {
+    path: "/post/:id",
+    element: <PostPage/>
   }
 ]);
 
