@@ -11,9 +11,12 @@ import {
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
-import { ArrowDownIcon, ArrowUpIcon, ChatBubbleIcon, Share2Icon } from "@radix-ui/react-icons";
 import { formatDate } from "@/utils/formatDate"; 
 // import Comments from "./Comments";
+import { PiShareFatBold } from "react-icons/pi";
+import { FaRegComment } from "react-icons/fa";
+import { TbArrowBigUp, TbArrowBigDown  } from "react-icons/tb";
+
 
 interface Post {
   _id: string;
@@ -109,7 +112,7 @@ export function PostCard({ post }: PostCardProps) {
   
 
   return (
-    <Card className="w-full mt-8">
+    <Card className="w-full mt-4">
       <CardHeader className="flex">
         <div className="flex justify-start items-center gap-2 w-4/5">
           <Avatar className="w-8 h-8">
@@ -133,16 +136,19 @@ export function PostCard({ post }: PostCardProps) {
                 value="1" 
                 onClick={() => handleVote('upvote')} 
                 variant={votedType === 'upvote' ? 'outline' : 'default'} 
+                className={votedType === 'upvote' ? 'bg-green-400' : 'default'} 
+
               >
-                <ArrowUpIcon />
+                <TbArrowBigUp className="w-4 h-4" />
               </ToggleGroupItem>
               <span>{votes}</span>
               <ToggleGroupItem 
                 value="-1" 
                 onClick={() => handleVote('downvote')} 
                 variant={votedType === 'downvote' ? 'outline' : 'default'} 
+                className={votedType === 'upvote' ? 'default' : 'bg-red-400'} 
               >
-                <ArrowDownIcon />
+                <TbArrowBigDown  className="w-4 h-4"  />
               </ToggleGroupItem>
             </ToggleGroup>
           </div>
@@ -151,14 +157,14 @@ export function PostCard({ post }: PostCardProps) {
           <a href={`/post/${post._id}`} className="flex justify-center items-center w-1/3">
         
         
-            <ChatBubbleIcon />
+            <FaRegComment className="w-4 h-4" />
         
           </a>
           
           <Separator orientation="vertical" />
-          <div className="flex justify-center items-center w-1/3">
-            <Share2Icon />
-          </div>
+          <a href="/" className="flex justify-center items-center w-1/3">
+            <PiShareFatBold className="w-4 h-4" />
+          </a>
         </div>
       </CardFooter>
 
