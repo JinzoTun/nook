@@ -1,10 +1,13 @@
 import Header from "@/components/Header";
 import SideBar from "@/components/SideBar";
-import PostList  from "@/components/PostList";
 import DescriptionCard from "@/components/DescriptionCard";
+import React from "react";
 
+type HomeProps = {
+  children: React.ReactNode;
+};
 
-export default function Home() {
+export default function Home({ children }: HomeProps) {
   return (
     <>
       <Header />
@@ -15,11 +18,9 @@ export default function Home() {
           <SideBar />
         </div>
 
-        {/* Main Content */}
-        <div className="lg:w-3/5  w-full p-5 lg:ml-[20%] h-[calc(100vh-64px)] overflow-auto">
-        <PostList />
-
-    
+        {/* Main Content dynamically rendered */}
+        <div className="lg:w-3/5 w-full p-5 lg:ml-[20%] h-[calc(100vh-64px)] overflow-auto">
+          {children}
         </div>
 
         {/* CardDescription fixed to the right */}

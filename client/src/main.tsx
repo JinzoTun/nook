@@ -12,12 +12,15 @@ import Register from './pages/Register';
 import Login from "@/pages/Login";
 import Profile from "@/pages/Profile";
 import CreatePost from './pages/CreatePost';
-import PostPage from './pages/PostPage';
+import Post from "@/components/Post";
+
+import PostList from './components/PostList';
+import AllDens from './components/AllDens';
 
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <Home />,
+    element: <Home><PostList /></Home>,
   },
   {
     path: "/register",
@@ -37,7 +40,11 @@ const router = createBrowserRouter([
   },
   {
     path: "/post/:id",
-    element: <PostPage/>
+    element: <Home><Post/></Home>
+  },
+  {
+    path: "/dens",
+    element: <Home><AllDens/></Home>
   }
 ]);
 

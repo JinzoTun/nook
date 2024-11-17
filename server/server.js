@@ -8,6 +8,7 @@ import authRoutes from './routes/authRoutes.js'; // Import authentication routes
 import postRoutes from './routes/postRoutes.js' // Import post routes
 import voteRoutes from "./routes/voteRoutes.js";  // Import vote routes
 import commentsRoutes from './routes/commentsRoutes.js'; // Import comments routes
+import denRoutes from './routes/denRoutes.js'; // Import den routes
 
 dotenv.config();
 
@@ -38,6 +39,8 @@ app.use('/api/users', userRoutes); // User management routes
 app.use('/api/posts', postRoutes); // Post routes
 app.use('/api', voteRoutes); // Vote routes   TODO: !! change to /api/votes
 app.use('/api/comments', commentsRoutes); // Comment routes
+app.use('/api', denRoutes); // Den routes
+
 
 mongoose.connect(process.env.MONGO_URI)
   .then(() => {
