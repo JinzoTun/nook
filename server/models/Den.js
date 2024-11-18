@@ -73,7 +73,15 @@ const DenSchema = new mongoose.Schema(
         ref: 'User',
       },
     ],
+    members: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+      },
+    ],
+    
   },
+
   {
     timestamps: true, // Automatically adds createdAt and updatedAt fields
   }

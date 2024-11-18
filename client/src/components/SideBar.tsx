@@ -32,12 +32,20 @@ function SideBar() {
            <p  className=" flex gap-4 "> All</p>
         </a>
 
+   
         <Separator />
 
         <a href="/dens" className="flex gap-4 justify-start  items-center">
         <GiMountainCave width={25} height={25}></GiMountainCave>
            <p  className=" flex gap-4 "> Dens</p>
         </a>
+
+        <Separator />
+
+        <h6 className=" text-base font-light opacity-70">My Dens</h6>
+        {/* map throw joined dens */}
+
+     
 
 
       </div>

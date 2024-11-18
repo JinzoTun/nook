@@ -1,13 +1,12 @@
 import { useState } from 'react';
 import axios from 'axios';
-import Header from "@/components/Header";
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Card } from '@/components/ui/card';
 
 
-const CreatePost: React.FC = () => {
+export default function CreatePost() {
   const [title, setTitle] = useState<string>('');
   const [body, setBody] = useState<string>('');
   const [message, setMessage] = useState<string>('');
@@ -42,10 +41,11 @@ const CreatePost: React.FC = () => {
   };
 
   return (
-    <main className="min-h-screen h-72 flex flex-col  w-full">
-      <Header />
-      <Card  className="flex flex-col gap-4 p-6 self-center w-9/12 m-auto   justify-center h-1/2 ">
-        <h1 className="text-3xl font-semibold">Create Post</h1>
+    
+
+
+      <Card  className=" p-5">
+        <h1 className="text-3xl font-semibold p-2 mb-4 flex">Create Post</h1>
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <Input
             type="text"
@@ -68,8 +68,6 @@ const CreatePost: React.FC = () => {
         </form>
         {message && <p className="mt-2">{message}</p>}
       </Card>
-    </main>
+
   );
 }
-
-export default CreatePost;

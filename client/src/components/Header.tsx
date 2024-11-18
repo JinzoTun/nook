@@ -6,6 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
 import { clearSessionVotes } from "@/utils/sessionUtils";
+import { HiPlus } from "react-icons/hi2";
+
 
 import {
   DropdownMenu,
@@ -92,7 +94,7 @@ function Header() {
         <div className="flex items-center gap-4">
         {!isAuthenticated ? (
             <></>
-          ) : ( <>        <Button ><a href="/post">Create Post</a></Button>
+          ) : ( <>        <a className="rounded-md flex justify-center items-center gap-2  hover:bg-gray-50 hover:text-black p-2 border-2" href="/post" ><HiPlus /> Create</a>
 </>)}
           <Notification />
 

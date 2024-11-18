@@ -33,14 +33,21 @@ const AllDens: React.FC = () => {
 
   const handleJoinDen = async (denId: string) => {
     try {
-      await axios.post(`http://localhost:3000/api/dens/${denId}/join`, {}, { withCredentials: true });
-
-      // Update joined dens state
-      setJoinedDens((prev) => new Set(prev).add(denId));
-      alert('You’ve successfully joined the Den!');
-    } catch (error) {
-      alert(`Error joining the Den: ${error}`);
+      const response
+        = await axios.post(`http://localhost:3000/api/dens/${denId}/join`,{
+          headers: {
+            token: localStorage.getItem('token')
+          }
+        });
+      if (response.status === 200) {
+        setJoinedDens(new Set([...joinedDens, denId]));
+      } else {
+        console.error('Failed to join Den');
+      }
+    } catch (err) {
+      console.error('Error joining Den :', err);
     }
+    
   };
 
   if (loading) return <p className="text-center text-gray-600">Loading Dens...</p>;

@@ -11,7 +11,7 @@ import Home from "@/pages/Home";
 import Register from './pages/Register';
 import Login from "@/pages/Login";
 import Profile from "@/pages/Profile";
-import CreatePost from './pages/CreatePost';
+import CreatePost from './components/CreatePost';
 import Post from "@/components/Post";
 
 import PostList from './components/PostList';
@@ -36,7 +36,7 @@ const router = createBrowserRouter([
   },
   {
     path: "/post",
-    element: <CreatePost/>
+    element: <Home><CreatePost/></Home>  
   },
   {
     path: "/post/:id",

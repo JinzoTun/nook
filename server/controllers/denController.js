@@ -103,3 +103,36 @@ export const getAllDens = async (req, res) => {
     res.status(500).json({ message: 'Error fetching Dens', error: error.message });
   }
 };
+
+// Join a Den
+export const joinDen = async (req, res) => {
+  try {
+    const { denId } = req.params;
+    const userId = req.user.id; 
+
+    // Ensure `denId` is not undefined
+    if (!denId) {
+      return res.status(400).json({ message: 'denId is required in the route parameter' });
+    }
+
+    // Find the Den by ID
+    const den = await Den.findById(denId);
+    if (!den) {
+      return res.status(404).json({ message: 'Den not found', denId });
+    }
+
+    // Check if the user is already a member
+    if (den.members.includes(userId)) {
+      return res.status(400).json({ message: 'User is already a member of this Den' });
+    }
+
+    // Add user to the Den's members
+    den.members.addToSet(userId); // Use `addToSet` to avoid duplicates
+    await den.save();
+
+    res.status(200).json({ message: 'Successfully joined Den' });
+  } catch (error) {
+    console.error('Error joining Den:', error);
+    res.status(500).json({ message: 'Error joining Den', error: error.message });
+  }
+};
