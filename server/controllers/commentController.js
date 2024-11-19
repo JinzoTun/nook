@@ -1,4 +1,5 @@
 import Comment from '../models/Comment.js';
+import Post from '../models/Post.js';
 
 // Create a new comment (postId, userId, content )  => POST /api/comments
 export const createComment = async (req, res) => {
@@ -22,6 +23,10 @@ export const createComment = async (req, res) => {
         author: userId,
         content : content,
         });
+        const post = await Post.findById(postId);
+        post.comments.push(comment._id);
+        await post.save();
+        
     
         res.status(201).json(comment);
     } catch (error) {

@@ -1,9 +1,10 @@
 // controllers/postController.js
-import Post from '../models/Post.js'; // Using import
+import Post from '../models/Post.js';
+import User from '../models/user.js';
+import Den from '../models/Den.js';
 
-// Create a new post
 export const createPost = async (req, res) => {
-  const { title, body } = req.body;
+  const { title, body, denId } = req.body; // Added `denId` to associate a post with a Den
   const userId = req.user; // Get userId from the decoded token set in protectRoute
 
   if (!title || !body) {
@@ -11,17 +12,41 @@ export const createPost = async (req, res) => {
   }
 
   try {
+    // Create the new post
     const post = await Post.create({
       title,
       body,
       author: userId,
     });
 
+    // Add the post to the user's posts
+    await User.findByIdAndUpdate(
+      userId,
+      { $push: { posts: post._id } }, // Push the post ID into the user's posts array
+      { new: true }
+    );
+
+    // If denId is provided, add the post to the Den's posts
+    if (denId) {
+      const den = await Den.findById(denId);
+      if (!den) {
+        return res.status(404).json({ message: 'Den not found.' });
+      }
+
+      await Den.findByIdAndUpdate(
+        denId,
+        { $push: { posts: post._id } }, // Push the post ID into the Den's posts array
+        { new: true }
+      );
+    }
+
     res.status(201).json(post);
   } catch (error) {
+    console.error('Error creating post:', error);
     res.status(500).json({ message: 'Failed to create post', error });
   }
 };
+
 
 // Get all posts
 export const getAllPosts = async (req, res) => {
@@ -32,7 +57,7 @@ export const getAllPosts = async (req, res) => {
     const skip = (page - 1) * limit;
 
     const posts = await Post.find()
-      .populate('author', 'username avatar') // Populate author field if you have username or avatar in user model
+      .populate('author', '_id username avatar') // Populate author field if you have username or avatar in user model
       .limit(limit)
       .skip(skip)
       .sort({ createdAt: -1 }); // Sort by creation date (assuming you have a createdAt timestamp in your model)
@@ -115,3 +140,27 @@ export const getPost = async (req, res ) => {
   
 
 }
+
+// comments count 
+export const getCommentsCount = async (req, res) => {
+  
+  const { id } = req.params;
+
+  try {
+    const post = await Post.findById(id);
+
+    if (!post) {
+      return res.status(404).json({ message: 'Post not found' });
+    }
+
+    const commentsCount = post.comments.length;
+
+    res.status(200).json({ commentsCount });
+  } catch (error) {
+    console.error('Error retrieving comments count:', error);
+    res.status(500).json({
+      message: 'Failed to retrieve comments count',
+      error: error.message || 'Internal Server Error',
+    });
+  }
+};

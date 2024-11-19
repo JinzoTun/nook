@@ -10,6 +10,7 @@ interface Post {
     body: string;
     votes: number;
     author: {
+        _id: string;
         username: string;
         avatar: string;
     };

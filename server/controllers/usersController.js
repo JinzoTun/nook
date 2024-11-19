@@ -3,12 +3,38 @@ import User from '../models/user.js';
 // Get user profile (protected route)
 export const getUserProfile = async (req, res) => {
     try {
-        const user = await User.findById(req.user).select('-password'); // Exclude password
+        const user = await User.findById(req.user)
+            .populate({
+                path: 'posts',  // Populate posts
+                populate: { path: 'author', select: 'username avatar' }  // Populate author with only username and avatar
+            })
+            .select('-password'); // Exclude password
+
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
         res.json(user);
     } catch (error) {
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
+// get user by id
+export const getUserById = async (req, res) => {
+    try {
+        const user = await User.findById(req.params.id)
+        .populate({
+            path: 'posts',  // Populate posts
+            populate: { path: 'author', select: 'username avatar' }  // Populate author with only username and avatar
+        })
+        .select('-password'); // Exclude password
+
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+        res.json(user);
+    }
+    catch (error) {
         res.status(500).json({ message: 'Server error' });
     }
 };
@@ -59,6 +85,20 @@ export const getAllUsers = async (req, res) => {
     try {
         const users = await User.find().select('-password'); // Exclude password
         res.json(users);
+    } catch (error) {
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
+// List all joined Dens
+
+export const getJoinedDens = async (req, res) => {
+    try {
+        const user = await User.findById(req.user).populate('joinedDens');
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+        res.json(user.joinedDens);
     } catch (error) {
         res.status(500).json({ message: 'Server error' });
     }

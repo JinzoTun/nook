@@ -8,6 +8,7 @@ interface Post {
   title: string;
   body: string;
   author: {
+    _id: string;
     username: string;
     avatar: string;
   };

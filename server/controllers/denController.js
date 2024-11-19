@@ -1,6 +1,7 @@
 import Den from '../models/Den.js';
+import User from '../models/user.js';
 
-// Create a new Den
+// Create a new Den and join 
 export const createDen = async (req, res) => {
   try {
     const { name, description, visibility, categories, tags, rules, banner, avatar, flair } = req.body;
@@ -26,7 +27,18 @@ export const createDen = async (req, res) => {
     });
 
     const savedDen = await newDen.save();
+
+    // Add the creator as a member of the Den
+    const user = await User.findById(createdBy);
+    const den = await Den.findById(savedDen._id);
+
+    user.joinedDens.addToSet(savedDen._id); // Use `addToSet` to avoid duplicates
+    den.members.addToSet(createdBy); // Use `addToSet` to avoid duplicates
+    await user.save(); 
+
+
     res.status(201).json(savedDen);
+
   } catch (error) {
     res.status(500).json({ message: 'Error creating Den', error: error.message });
   }
@@ -104,11 +116,11 @@ export const getAllDens = async (req, res) => {
   }
 };
 
-// Join a Den
+// Join a Den and save the user as a member 
 export const joinDen = async (req, res) => {
   try {
     const { denId } = req.params;
-    const userId = req.user.id; 
+    const userId = req.user; 
 
     // Ensure `denId` is not undefined
     if (!denId) {
@@ -126,7 +138,12 @@ export const joinDen = async (req, res) => {
       return res.status(400).json({ message: 'User is already a member of this Den' });
     }
 
-    // Add user to the Den's members
+    // Add user to the Den's members 
+    // add den to user's myDen array 
+    const user = await User.findById(userId); 
+    user.joinedDens.addToSet(denId); // Use `addToSet` to avoid duplicates
+    await user.save();
+
     den.members.addToSet(userId); // Use `addToSet` to avoid duplicates
     await den.save();
 
@@ -136,3 +153,163 @@ export const joinDen = async (req, res) => {
     res.status(500).json({ message: 'Error joining Den', error: error.message });
   }
 };
+
+/*
+// Leave a Den and remove the user as a member
+export const leaveDen = async (req, res) => {
+  try {
+    const { denId } = req.params;
+    const userId = req.user.id;
+
+    // Ensure `denId` is not undefined
+    if (!denId) {
+      return res.status(400).json({ message: 'denId is required in the route parameter' });
+    }
+
+    // Find the Den by ID
+    const den = await Den.findById(denId);
+    if (!den) {
+      return res.status(404).json({ message: 'Den not found', denId });
+    }
+
+    // Check if the user is a member
+    if (!den.members.includes(userId)) {
+      return res.status(400).json({ message: 'User is not a member of this Den' });
+    }
+
+    // Remove user from the Den's members
+    // remove den from user's myDen array
+    const user = await User.findById(userId );
+    user.myDen.pull(denId);
+    await user.save();
+
+    den.members.pull(userId);
+    await den.save();
+
+    res.status(200).json({ message: 'Successfully left Den' });
+  }
+  catch (error) {
+    console.error('Error leaving Den:', error);
+    res.status(500).json({ message: 'Error leaving Den', error: error.message });
+  }
+}
+
+// Promote a user to moderator
+
+export const promoteModerator = async (req, res) => {
+  try {
+    const { denId, userId } = req.params;
+
+    // Ensure `denId` and `userId` are not undefined
+    if (!denId || !userId) {
+      return res.status(400).json({ message: 'denId and userId are required in the route parameter' });
+    }
+
+    // Find the Den by ID
+    const den = await Den.findById(denId);
+    if (!den) {
+      return res.status(404).json({ message: 'Den not found', denId });
+    }
+
+    // Check if the user is a member
+    if (!den.members.includes(userId)) {
+      return res.status(400).json({ message: 'User is not a member of this Den' });
+    }
+
+    // Promote user to moderator
+    den.moderators.addToSet(userId); // Use `addToSet` to avoid duplicates
+    await den.save();
+
+    res.status(200).json({ message: 'Successfully promoted user to moderator' });
+  } catch (error) {
+    console.error('Error promoting moderator:', error);
+    res.status(500).json({ message: 'Error promoting moderator', error: error.message });
+  }
+}
+
+// Demote a moderator to member
+
+export const demoteModerator = async (req, res) => {
+  try {
+    const { denId, userId } = req.params;
+
+    // Ensure `denId` and `userId` are not undefined
+    if (!denId || !userId) {
+      return res.status(400).json({ message: 'denId and userId are required in the route parameter' });
+    }
+
+    // Find the Den by ID
+    const den = await Den.findById(denId);
+    if (!den) {
+      return res.status(404).json({ message: 'Den not found', denId });
+    }
+
+    // Check if the user is a moderator
+    if (!den.moderators.includes(userId)) {
+      return res.status(400).json({ message: 'User is not a moderator of this Den' });
+    }
+
+    // Demote user to member
+    den.moderators.pull(userId);
+    await den.save();
+
+    res.status(200).json({ message: 'Successfully demoted moderator to member' });
+  } catch (error) {
+    console.error('Error demoting moderator:', error);
+    res.status(500).json({ message: 'Error demoting moderator', error: error.message });
+  }
+}
+
+
+// List all members of a Den
+
+export const getDenMembers = async (req, res) => {
+  try {
+    const { denId } = req.params;
+
+    // Ensure `denId` is not undefined
+    if (!denId) {
+      return res.status(400).json({ message: 'denId is required in the route parameter' });
+    }
+
+    // Find the Den by ID
+    const den = await Den.findById(denId);
+    if (!den) {
+      return res.status(404).json({ message: 'Den not found', denId });
+    }
+
+    // Find all members of the Den
+    const members = await User.find({ _id: { $in: den.members } });
+    res.json(members);
+  } catch (error) {
+    console.error('Error fetching Den members:', error);
+    res.status(500).json({ message: 'Error fetching Den members', error: error.message });
+  }
+}
+
+// List all moderators of a Den 
+
+export const getDenModerators = async (req, res) => {
+  try {
+    const { denId } = req.params;
+
+    // Ensure `denId` is not undefined
+    if (!denId) {
+      return res.status(400).json({ message: 'denId is required in the route parameter' });
+    }
+
+    // Find the Den by ID
+    const den = await Den.findById(denId);
+    if (!den) {
+      return res.status(404).json({ message: 'Den not found', denId });
+    }
+
+    // Find all moderators of the Den
+    const moderators = await User.find({ _id: { $in: den.moderators } });
+    res.json(moderators);
+  } catch (error) {
+    console.error('Error fetching Den moderators:', error);
+    res.status(500).json({ message: 'Error fetching Den moderators', error: error.message });
+  }
+}
+*/

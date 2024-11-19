@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Card, CardHeader, CardContent, CardFooter } from './ui/card'; // ShadCN Card
 import { Button } from './ui/button'; // ShadCN Button
+import JoinDen from '@/api/JoinDen';
+import getJoinedDens from '@/api/GetJoinedDens';
 
 interface Den {
   _id: string;
@@ -22,6 +24,7 @@ const AllDens: React.FC = () => {
       try {
         const response = await axios.get<Den[]>('http://localhost:3000/api/dens');
         setDens(response.data);
+
         setLoading(false);
       } catch (err) {
         setError(`Error loading Dens' data: ${err}`);
@@ -31,30 +34,41 @@ const AllDens: React.FC = () => {
     fetchDens();
   }, []);
 
+  useEffect(() => {
+    const fetchJoinedDens = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        if (!token) throw new Error('User not authenticated');
+        const dens = await getJoinedDens(token);
+        setJoinedDens(new Set(dens.map((den) => den._id)));
+      } catch (err) {
+        console.error('Error fetching joined dens:', err);
+      }
+    };
+    fetchJoinedDens();
+  }, []);
+
+
+ 
+  
   const handleJoinDen = async (denId: string) => {
     try {
-      const response
-        = await axios.post(`http://localhost:3000/api/dens/${denId}/join`,{
-          headers: {
-            token: localStorage.getItem('token')
-          }
-        });
-      if (response.status === 200) {
-        setJoinedDens(new Set([...joinedDens, denId]));
-      } else {
-        console.error('Failed to join Den');
-      }
+      const token = localStorage.getItem('token');
+      if (!token) throw new Error('User not authenticated');
+      await JoinDen( denId, token);
+      setJoinedDens(new Set([...joinedDens, denId]));
     } catch (err) {
-      console.error('Error joining Den :', err);
+      console.error('Error joining den:', err);
     }
-    
-  };
+  }
+
+
 
   if (loading) return <p className="text-center text-gray-600">Loading Dens...</p>;
   if (error) return <p className="text-center text-red-600">{error}</p>;
 
   return (
-    <div className="container mx-auto p-6">
+    <>
       {/* Back Button */}
       <div className="flex items-center mb-5 cursor-pointer">
         <svg
@@ -118,7 +132,7 @@ const AllDens: React.FC = () => {
           <p className="text-center text-gray-600 col-span-full">No Dens available</p>
         )}
       </div>
-    </div>
+    </>
   );
 };
 

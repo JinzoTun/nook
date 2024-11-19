@@ -23,6 +23,7 @@ interface Post {
   title: string;
   body: string;
   author: {
+    _id: string;
     username: string;
     avatar: string;
   };
@@ -38,6 +39,7 @@ export function PostCard({ post }: PostCardProps) {
   const [votes, setVotes] = useState(post.votes);
   const [votedType, setVotedType] = useState<'upvote' | 'downvote' | null>(null);
   const [isVoting, setIsVoting] = useState(false);
+  const [CommentsCount, setCommentsCount] = useState(0);
 
   // Fetch all user votes for initial load and store them in session storage
   useEffect(() => {
@@ -109,18 +111,29 @@ export function PostCard({ post }: PostCardProps) {
       setIsVoting(false);
     }
   }, 150);
+
+  // get comments count from http://localhost:3000/api/posts/CommentsCount/${post._id}
+  useEffect(() => {
+    axios.get(`http://localhost:3000/api/posts/CommentsCount/${post._id}`)
+    .then((response) => {
+      setCommentsCount(response.data.commentsCount);
+    })
+    .catch((error) => console.error("Error fetching comments count:", error));
+  }
+  , [post._id]);
+
   
 
   return (
     <Card className="w-full mt-4">
       <CardHeader className="flex">
-        <div className="flex justify-start items-center gap-2 w-4/5">
-          <Avatar className="w-8 h-8">
+        <a href={`/profile/${post.author._id}`} className="flex justify-start items-center gap-2 w-4/5">
+          <Avatar className="w-8 h-8" >
             <AvatarImage src={post.author.avatar || "https://placeholder.com/300x300"} alt="avatar" />
             <AvatarFallback>{post.author.username.charAt(0)}</AvatarFallback>
           </Avatar>
           <p className="text-sm font-medium">{post.author.username}  <span className="m-1 opacity-50 text-xs">{formatDate(post.createdAt)}</span></p>
-        </div>
+        </a>
         <CardDescription>{post.title}</CardDescription>
       </CardHeader>
 
@@ -154,10 +167,12 @@ export function PostCard({ post }: PostCardProps) {
           </div>
 
           <Separator orientation="vertical" />
-          <a href={`/post/${post._id}`} className="flex justify-center items-center w-1/3">
+          <a href={`/post/${post._id}`} className="flex justify-center items-center w-1/3 gap-1">
         
         
             <FaRegComment className="w-4 h-4" />
+            <span>{CommentsCount}</span>
+            
         
           </a>
           

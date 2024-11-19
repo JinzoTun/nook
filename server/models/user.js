@@ -32,6 +32,30 @@ const userSchema = new mongoose.Schema({
         
 
     },
+    isAdmin: {
+        type: Boolean,
+        default: false,
+    },
+    isModerator: {
+        type: Boolean,
+        default: false,
+    },
+    isVerified: {
+        type: Boolean,
+        default: false,
+    },
+    joinedDens: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Den',
+    }],
+    posts: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Post',
+    }],
+    
+
+
+
  
 },{
     timestamps : true

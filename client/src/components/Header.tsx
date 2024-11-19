@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 
 interface UserProfile {
+  _id: string;
   username: string;
   email: string;
   avatar: string; // Assuming the user has an avatar
@@ -70,8 +71,12 @@ function Header() {
   };
 
   const getProfile = () => {
-    navigate('/profile');
+    navigate(`/profile/${userProfile?._id}`);
   }
+  const getSettings = () => {
+    navigate('/settings');
+  }
+
 
   return (
     <div className="sticky top-0 flex h-16 items-center gap-4 border-b bg-background px-4 md:px-6">
@@ -122,7 +127,7 @@ function Header() {
                   <DropdownMenuLabel className=" font-light italic">"{userProfile?.bio || 'no bio'}"</DropdownMenuLabel>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={getProfile}>My Profile</DropdownMenuItem>
-                  <DropdownMenuItem>Settings</DropdownMenuItem>
+                  <DropdownMenuItem onClick={getSettings} >Settings</DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={handleLogout}>Logout</DropdownMenuItem>
                 </DropdownMenuContent>

@@ -12,7 +12,7 @@ import Header from "@/components/Header";
 import { useEffect, useState } from "react";
 import axios from "axios";
 
-export default function Profile() {
+export default function Settings() {
   const [avatar, setAvatar] = useState<string>("");
   const [username, setUsername] = useState<string>(""); // State for username
   const [bio, setBio] = useState<string>(""); // State for bio
