@@ -3,21 +3,9 @@ import { useParams } from 'react-router-dom';
 import axios from 'axios';
 import { PostCard } from '@/components/PostCard';
 import Comments from '@/components/Comments';
+import { Post } from '@/interfaces/interfaces';
 
-interface Post {
-    _id: string;
-    title: string;
-    body: string;
-    votes: number;
-    author: {
-        _id: string;
-        username: string;
-        avatar: string;
-    };
-    createdAt: string;
-}
-
-export default function Post() {
+export default function PostPage() {
     const { id } = useParams<{ id: string }>();
     const [post, setPost] = useState<Post | null>(null);
     const [loading, setLoading] = useState<boolean>(true);

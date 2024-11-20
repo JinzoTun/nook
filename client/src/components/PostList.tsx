@@ -2,19 +2,9 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { PostCard } from "./PostCard";
 import { Button } from "./ui/button";
+import { Post } from "../interfaces/interfaces";
 
-interface Post {
-  _id: string;
-  title: string;
-  body: string;
-  author: {
-    _id: string;
-    username: string;
-    avatar: string;
-  };
-  votes: number;
-  createdAt: string;
-}
+
 
 export default function PostList() {
   const [posts, setPosts] = useState<Post[]>([]);

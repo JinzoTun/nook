@@ -48,6 +48,9 @@ const AllDens: React.FC = () => {
     fetchJoinedDens();
   }, []);
 
+  const handleNavigateToDen = (denId: string) => () => {
+    window.location.href = `/den/${denId}`;
+  };
 
  
   
@@ -93,9 +96,9 @@ const AllDens: React.FC = () => {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {dens.length > 0 ? (
           dens.map((den) => (
-            <Card
+            <Card onClick={handleNavigateToDen(den._id)}
               key={den._id}
-              className="flex flex-col items-center justify-between p-4 shadow-md hover:shadow-lg transition-all rounded-lg"
+              className="flex flex-col items-center justify-between p-4 shadow-md hover:shadow-lg transition-all rounded-lg hover:cursor-pointer"
             >
               {/* Avatar */}
               <CardHeader className="flex flex-col items-center">

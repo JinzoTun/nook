@@ -3,21 +3,14 @@ import { useEffect, useState } from "react";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
 import PostComment from "@/api/PostComment";
+import { Comment , NewComment } from "@/interfaces/interfaces";
+import { formatDate } from "@/utils/formatDate"; 
 
-interface Comment {
-  _id: string;
-  author: {
-    username: string;
-    avatar: string;
-  };
-  content: string;
-}
 
-interface NewComment {
-  userId : string;
-  postId: string;
-  content: string;
-}
+
+
+
+
 
 export default function Comments({ postId }: { postId: string }) {
   const [comments, setComments] = useState<Comment[]>([]);
@@ -44,6 +37,8 @@ export default function Comments({ postId }: { postId: string }) {
       content: content,
     };
 
+
+
     try {
       await PostComment(newComment);
       setContent(""); // Clear input field
@@ -60,21 +55,36 @@ export default function Comments({ postId }: { postId: string }) {
 };
 
 
+  const handleDeleteComment = async (commentId: string) => {
+    try {
+      await axios.delete(`http://localhost:3000/api/comments/${commentId}`, {
+        headers: { token: localStorage.getItem("token")  }
+      });
+
+      // Remove the deleted comment from the list
+      setComments(comments.filter((comment) => comment._id !== commentId));
+    } catch (error) {
+      console.error("Error deleting comment:", error);
+    }
+  };
+
   return (
     <div className="w-full">
-      <div className="m-4 flex gap-2 justify-center items-center">
+      <form onSubmit={handleCommentSubmit} className="m-4 flex gap-2 justify-center items-center">
         <Input
           placeholder="Comment..."
           className="flex justify-center items-center w-full m-2"
           value={content}
           onChange={(e) => setContent(e.target.value)}
+ 
         />
-        <Button variant="secondary" onClick={handleCommentSubmit}>
+        <Button variant="secondary"  type="submit">
           Comment
         </Button>
-      </div>
+      </form>
 
       {/* Render comments if there are any */}
+
       {comments.length > 0 ? (
         comments.map((comment) => (
           <div key={comment._id} className="m-4 flex gap-2 items-center">
@@ -84,10 +94,18 @@ export default function Comments({ postId }: { postId: string }) {
               className="w-7 h-7 rounded-full"
             />
             <div>
-              <p className="text-sm">{comment.author.username}</p>
+              <p className="text-sm">{comment.author.username}     <span className="text-xs opacity-50">
+                {formatDate(comment.createdAt)}
+              </span></p>
+
+         
               <p className="text-xs italic">{comment.content}</p>
             </div>
+            <Button className="p-2 flex " variant={"destructive"} onClick={() => handleDeleteComment(comment._id)}> delete</Button>
+
+
           </div>
+
         ))
       ) : (
         <p className="m-4 opacity-50 text-xs">No comments yet</p>

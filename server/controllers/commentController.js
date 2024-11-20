@@ -1,5 +1,6 @@
 import Comment from '../models/Comment.js';
 import Post from '../models/Post.js';
+import User from '../models/user.js';
 
 // Create a new comment (postId, userId, content )  => POST /api/comments
 export const createComment = async (req, res) => {
@@ -44,7 +45,7 @@ export const getComments = async (req, res) => {
     }
 }
 
-// Get a comment by id => GET /api/comments/:id
+// Get a comment by id => GET /api/comments/:id 
 export const getCommentById = async (req, res) => {
     const { id } = req.params;
     try {
@@ -81,5 +82,24 @@ export const getCommentsByPostId = async (req, res) => {
     }
 }
 
+
+// delete 
+
+export const deleteComment = async (req, res) => {
+    const { id } = req.params;
+    try {
+        const comment = await Comment.findById(id);
+        if (!comment) {
+            return res.status(404).json({ message: 'Comment not found' });
+        }
+        if (comment.author.toString() !== req.user) {
+            return res.status(401).json({ message: 'You are not authorized to delete this comment' });
+        }
+        await comment.deleteOne();
+        res.json({ message: 'Comment deleted successfully' });
+    } catch (error) {
+        res.status(500).json({ message: 'Failed to delete comment', error });
+    }
+}
 
 

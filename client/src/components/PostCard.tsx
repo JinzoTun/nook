@@ -16,21 +16,7 @@ import { formatDate } from "@/utils/formatDate";
 import { PiShareFatBold } from "react-icons/pi";
 import { FaRegComment } from "react-icons/fa";
 import { TbArrowBigUp, TbArrowBigDown  } from "react-icons/tb";
-
-
-interface Post {
-  _id: string;
-  title: string;
-  body: string;
-  author: {
-    _id: string;
-    username: string;
-    avatar: string;
-  };
-  votes: number;
-  createdAt: string;
-}
-
+import { Post } from "@/interfaces/interfaces";
 interface PostCardProps {
   post: Post;
 }
@@ -39,7 +25,9 @@ export function PostCard({ post }: PostCardProps) {
   const [votes, setVotes] = useState(post.votes);
   const [votedType, setVotedType] = useState<'upvote' | 'downvote' | null>(null);
   const [isVoting, setIsVoting] = useState(false);
-  const [CommentsCount, setCommentsCount] = useState(0);
+  const [CommentsCount, setCommentsCount] = useState<number>();
+
+    
 
   // Fetch all user votes for initial load and store them in session storage
   useEffect(() => {
@@ -112,11 +100,12 @@ export function PostCard({ post }: PostCardProps) {
     }
   }, 150);
 
-  // get comments count from http://localhost:3000/api/posts/CommentsCount/${post._id}
+  // get comments count from http://localhost:3000/api/coments/${post._id}
   useEffect(() => {
-    axios.get(`http://localhost:3000/api/posts/CommentsCount/${post._id}`)
+
+    axios.get(`http://localhost:3000/api/Comments/${post._id}`)
     .then((response) => {
-      setCommentsCount(response.data.commentsCount);
+      setCommentsCount(response.data.length);
     })
     .catch((error) => console.error("Error fetching comments count:", error));
   }
@@ -149,7 +138,7 @@ export function PostCard({ post }: PostCardProps) {
                 value="1" 
                 onClick={() => handleVote('upvote')} 
                 variant={votedType === 'upvote' ? 'outline' : 'default'} 
-                className={votedType === 'upvote' ? 'bg-green-400' : 'default'} 
+                className={votedType === 'upvote' ? ' bg-emerald-500' : 'default'} 
 
               >
                 <TbArrowBigUp className="w-4 h-4" />
@@ -159,7 +148,7 @@ export function PostCard({ post }: PostCardProps) {
                 value="-1" 
                 onClick={() => handleVote('downvote')} 
                 variant={votedType === 'downvote' ? 'outline' : 'default'} 
-                className={votedType === 'upvote' ? 'default' : 'bg-red-400'} 
+                className={votedType === 'downvote' ? ' bg-pink-500' : 'default'} 
               >
                 <TbArrowBigDown  className="w-4 h-4"  />
               </ToggleGroupItem>
@@ -171,7 +160,7 @@ export function PostCard({ post }: PostCardProps) {
         
         
             <FaRegComment className="w-4 h-4" />
-            <span>{CommentsCount}</span>
+            <span>{ CommentsCount }</span>
             
         
           </a>

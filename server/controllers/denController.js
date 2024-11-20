@@ -47,10 +47,20 @@ export const createDen = async (req, res) => {
 // Get a specific Den by ID
 export const getDenById = async (req, res) => {
   try {
-    const den = await Den.findById(req.params.denId).populate('createdBy', 'username').populate('moderators', 'username');
+    const den = await Den.findById(req.params.denId)
+        .populate('members')
+        .populate('moderators')
+        .populate({
+          path: 'posts',
+          populate: {
+            path: 'author' // Populate the 'author' field within 'posts'
+          },
+        });
+
     if (!den) {
       return res.status(404).json({ message: 'Den not found' });
     }
+
     res.json(den);
   } catch (error) {
     res.status(500).json({ message: 'Error fetching Den', error: error.message });

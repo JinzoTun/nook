@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import axios from 'axios'; // To make API requests
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search } from "lucide-react";
+import {   Search } from "lucide-react";
 import { clearSessionVotes } from "@/utils/sessionUtils";
 import { HiPlus } from "react-icons/hi2";
 
@@ -77,6 +77,9 @@ function Header() {
     navigate('/settings');
   }
 
+  const handleCreateButton = () => {
+    navigate('/create');
+  }
 
   return (
     <div className="sticky top-0 flex h-16 items-center gap-4 border-b bg-background px-4 md:px-6">
@@ -99,7 +102,7 @@ function Header() {
         <div className="flex items-center gap-4">
         {!isAuthenticated ? (
             <></>
-          ) : ( <>        <a className="rounded-md flex justify-center items-center gap-2  hover:bg-gray-50 hover:text-black p-2 border-2" href="/post" ><HiPlus /> Create</a>
+          ) : ( <>        <Button onClick={handleCreateButton}  className="rounded-full w-9 h-9" size={"icon"} variant={"secondary"} ><HiPlus className="w-5 h-5" /> </Button>
 </>)}
           <Notification />
 

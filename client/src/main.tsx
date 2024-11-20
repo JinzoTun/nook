@@ -38,7 +38,7 @@ const router = createBrowserRouter([
     element: <Settings />,
   },
   {
-    path: "/post",
+    path: "/create",
     element: <Home><CreatePost/></Home>  
   },
   {

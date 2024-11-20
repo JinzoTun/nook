@@ -2,19 +2,9 @@ import axios from 'axios';
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { PostCard } from './PostCard';
+import {Post } from '../interfaces/interfaces';
 
-interface Post {
-  _id: string;
-  title: string;
-  body: string;
-  author: {
-    _id: string
-    username: string;
-    avatar: string;
-  };
-  votes: number;
-    createdAt: string;
-}
+
 
 function Profile() {
 
