@@ -75,7 +75,7 @@ function SideBar() {
 
         <Separator />
 
-        <h6 className=" text-base font-light opacity-70">Dens</h6>
+        <h6 className=" text-base font-light opacity-70">DENS</h6>
         <a href="/den/create" className="flex gap-4 justify-start items-center ">
         <HiPlus size={30} ></HiPlus>
            <p  className=" "> Create a den</p>

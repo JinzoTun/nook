@@ -103,8 +103,9 @@ function Header() {
         {!isAuthenticated ? (
             <></>
           ) : ( <>        <Button onClick={handleCreateButton}  className="rounded-full w-9 h-9" size={"icon"} variant={"secondary"} ><HiPlus className="w-5 h-5" /> </Button>
-</>)}
           <Notification />
+</>)}
+          
 
           {/* Conditionally render Sign In or Dropdown Menu based on authentication status */}
           {!isAuthenticated ? (
