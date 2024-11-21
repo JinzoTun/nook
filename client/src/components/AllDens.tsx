@@ -57,6 +57,8 @@ const AllDens: React.FC = () => {
   if (loading) return <Loading />;
   if (error) return <p className="text-center text-red-600">{error}</p>;
 
+  if (!dens || dens.length == 0 ) return <p className="text-center text-gray-600">No Dens available</p>;
+
   return (
     <>
       {/* Back Button */}

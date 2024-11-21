@@ -68,11 +68,13 @@ export default function PostList() {
 
   return (
     <div>
+      {posts.length === 0 && !loading && <div>No posts found</div>}
       {posts.map((post) => (
         <PostCard key={post._id} post={post} />
       ))}
       {loading && <Loading />}
-      <div ref={bottomElementRef} style={{ height: 1 }} />
+      <div ref={bottomElementRef} />
     </div>
   );
+
 }
