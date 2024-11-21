@@ -24,6 +24,7 @@ export default function CreateDen() {
   const [message, setMessage] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(false);
 
+  // todo : change how the form is submitted new den 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -49,6 +50,7 @@ export default function CreateDen() {
         members: [], // Backend will handle members
         posts: [], // Backend will handle posts
         visibility,
+        moderators: [], // Backend will handle moderators
       };
 
       // Use API function
