@@ -1,4 +1,4 @@
-import User from '../models/User.js';
+import User from '../models/user.js';
 
 // Get user profile (protected route)
 export const getUserProfile = async (req, res) => {

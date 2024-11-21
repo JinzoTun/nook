@@ -35,7 +35,7 @@ function SideBar() {
     >
       <div className="flex flex-col gap-3 m-2 text-lg  ">
         <a href="/" className="flex gap-4 justify-start  items-center">
-        <HomeIcon width={25} height={25}></HomeIcon>
+        <HomeIcon width={23} height={25}></HomeIcon>
            <p  className=" flex gap-4 "> Home</p>
         </a>
         <a href="/" className="flex gap-4 justify-start  items-center">
@@ -43,7 +43,7 @@ function SideBar() {
            <p  className=" flex gap-4 "> Popular</p>
         </a>
         <a href="/" className="flex gap-4 justify-start  items-center">
-        <Search width={25} height={25}></Search>
+        <Search width={23} height={23}></Search>
            <p  className=" flex gap-4 "> Explore</p>
         </a>
         <a href="/" className="flex gap-4 justify-start  items-center">
@@ -54,16 +54,16 @@ function SideBar() {
    
         <Separator />
 
-        <a href="/dens" className="flex gap-4 justify-start  items-center">
-        <GiMountainCave width={25} height={25}></GiMountainCave>
-           <p  className=" flex gap-4 "> Dens</p>
+        <a href="/dens" className="flex gap-3 justify-start  items-center">
+        <GiMountainCave  size={27}></GiMountainCave>
+           <p  className="  "> Dens</p>
         </a>
 
         <Separator />
 
         <h6 className=" text-base font-light opacity-70">DENS</h6>
-        <a href="/d/create" className="flex gap-4 justify-start items-center ">
-        <HiPlus size={30} ></HiPlus>
+        <a href="/d/create" className="flex gap-2 justify-start items-center ">
+        <HiPlus size={26} ></HiPlus>
            <p  className=" "> Create a den</p>
         </a>
         
@@ -78,12 +78,12 @@ function SideBar() {
                />
                 <p  className=" font-normal"> d/{den.name}</p>
                </a>
-         ))}
-  <Separator />
-  <a href="/terms" className="flex gap-4 justify-start  items-center">
-        <RiFileList3Line width={25} height={25}></RiFileList3Line>
-           <p  className=" flex gap-4 "> Terms of Service</p>
-        </a>
+            ))}
+         <Separator />
+         <a href="/terms" className="flex gap-4 justify-start  items-center">
+         <RiFileList3Line width={25} height={25}></RiFileList3Line>
+            <p  className=" flex gap-4 "> Terms of Service</p>
+         </a>
 
   
 

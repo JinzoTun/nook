@@ -31,7 +31,6 @@ function Header() {
       return
     }
     if (token) {
-      setIsAuthenticated(true);
       fetchUserProfile(token); // Fetch user profile if authenticated
     }
   }, []);
@@ -41,8 +40,10 @@ function Header() {
     try {
       const user = await fetchUser(token);
       setUserProfile(user);
+      setIsAuthenticated(true);
     } catch (error) {
       console.error('Error fetching user profile:', error);
+      setIsAuthenticated(false);
     }
   };
 
