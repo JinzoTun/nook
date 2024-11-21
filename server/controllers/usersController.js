@@ -1,4 +1,4 @@
-import User from '../models/user.js';
+import User from '../models/User.js';
 
 // Get user profile (protected route)
 export const getUserProfile = async (req, res) => {
@@ -41,7 +41,7 @@ export const getUserById = async (req, res) => {
 
 // Update user profile (protected route)
 export const updateUserProfile = async (req, res) => {
-    const { avatar, username, email, password, bio } = req.body;
+    const { avatar, username, email, password, bio, banner } = req.body;
 
     try {
         const user = await User.findById(req.user);
@@ -56,6 +56,7 @@ export const updateUserProfile = async (req, res) => {
         if (email) user.email = email;
         if (password) user.password = password; // Will be hashed before save
         if ( bio) user.bio = bio ;
+        if (banner) user.banner = banner;
 
         await user.save();
         res.json({ message: 'Profile updated successfully' });
