@@ -2,10 +2,15 @@ export interface Post {
     _id: string;
     title: string;
     body: string;
+    image: string;
+    video: string;
     author: User;
     votes: number;  
     createdAt: string;
     comments: Comment[];
+    location : string;
+    locationType: [Den, User];
+    
   }
 
 export interface User {

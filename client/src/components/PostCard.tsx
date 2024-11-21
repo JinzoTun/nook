@@ -133,6 +133,9 @@ export function PostCard({ post }: PostCardProps) {
 
       <CardContent>
         <p>{post.body}</p>
+        {post.image && <img src={post.image} alt="post" className="m-auto max-w-full max-h-96  object-contain rounded-xl" />}
+        {post.video && <video src={post.video} controls className="m-auto max-w-full max-h-96  object-contain rounded-xl" />}
+
       </CardContent>
 
       <CardFooter className="p-2 flex justify-start items-center border-t-2">

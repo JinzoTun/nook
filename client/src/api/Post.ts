@@ -3,14 +3,14 @@ import {API} from "../config/server";
 import { Post } from "../interfaces/interfaces";
 
 // Create a new post
-export const createPost = async (title: string, body: string, denId: string, token: string): Promise<void> => {
+export const createPost = async (title: string, body: string, image : string , video : string ,denId: string, token: string): Promise<void> => {
   try {
     await axios.post(
       `${API}/api/posts`,
-      { title, body, denId },
+      { title, body, denId , image , video },
       {
         headers: {
-          token,
+          token: token,
         },
       }
     );

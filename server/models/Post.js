@@ -24,12 +24,7 @@ const postSchema = new mongoose.Schema(
     video: {
       type: String,
       default: null,
-      validate: {
-        validator: function (v) {
-          return v === null || /^https?:\/\/.+\.(mp4|mov|avi)$/.test(v);
-        },
-        message: 'Invalid video URL',
-      },
+      
     },
     author: {
       type: mongoose.Schema.Types.ObjectId,

@@ -21,10 +21,12 @@ import { createPost } from '@/api/Post';
 export default function CreatePost() {
   const [title, setTitle] = useState<string>('');
   const [body, setBody] = useState<string>('');
-  const [message, setMessage] = useState<string>('');
+  const [image, setImage] = useState<string | null>(null);
+  const [video, setVideo] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [joinedDens, setJoinedDens] = useState<Den[]>([]);
   const [selectedDenId, setSelectedDenId] = useState<string>('');
+  const [message, setMessage] = useState<string>('');
 
   useEffect(() => {
     const fetchDens = async () => {
@@ -65,11 +67,12 @@ export default function CreatePost() {
 
 
     try {
-      await createPost(title, body, selectedDenId, token! /* Non-null assertion */    
-      );
+      await createPost(title, body, image || '', video || '', selectedDenId, token); // Call the createPost function
 
       setMessage('Post created successfully!');
       setTitle('');
+      setVideo('');
+      setImage('');
       setBody('');
       setSelectedDenId(''); // Clear the selected Den
     } catch (error) {
@@ -99,6 +102,21 @@ export default function CreatePost() {
           className="border p-2"
           required
         />
+        <Input
+          type="text"
+          value={image || ''}
+          onChange={(e) => setImage(e.target.value)}
+          placeholder="Image URL"
+          className="border p-2"
+        />
+        <Input
+          type="text"
+          value={video || ''}
+          onChange={(e) => setVideo(e.target.value)}
+          placeholder="Video URL"
+          className="border p-2"
+        />
+
 
         {/* Select Dropdown for Joined Dens */}
         <Select
