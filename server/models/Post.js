@@ -1,4 +1,3 @@
-// models/Post.js
 import mongoose from 'mongoose';
 
 const postSchema = new mongoose.Schema(
@@ -12,15 +11,34 @@ const postSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    image: {
+      type: String,
+      default: null,
+      validate: {
+        validator: function (v) {
+          return v === null || /^https?:\/\/.+\.(jpg|jpeg|png|gif)$/.test(v);
+        },
+        message: 'Invalid image URL',
+      },
+    },
+    video: {
+      type: String,
+      default: null,
+      validate: {
+        validator: function (v) {
+          return v === null || /^https?:\/\/.+\.(mp4|mov|avi)$/.test(v);
+        },
+        message: 'Invalid video URL',
+      },
+    },
     author: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'User', // Reference to the User schema
+      ref: 'User',
       required: true,
     },
-    votes : {
+    votes: {
       type: Number,
       default: 0,
-    
     },
     comments: [
       {
@@ -28,9 +46,18 @@ const postSchema = new mongoose.Schema(
         ref: 'Comment',
       },
     ],
-    
+    location: {
+      type: mongoose.Schema.Types.ObjectId,
+      required: true,
+      refPath: 'locationType',
+    },
+    locationType: {
+      type: String,
+      required: true,
+      enum: ['User', 'Den'],
+    },
   },
-  { timestamps: true } // Enables createdAt and updatedAt fields
+  { timestamps: true }
 );
 
 const Post = mongoose.model('Post', postSchema);

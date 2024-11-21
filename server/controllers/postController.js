@@ -1,45 +1,47 @@
-// controllers/postController.js
 import Post from '../models/Post.js';
 import User from '../models/user.js';
 import Den from '../models/Den.js';
 
+// Create a new post
 export const createPost = async (req, res) => {
-  const { title, body, denId } = req.body; // Added `denId` to associate a post with a Den
-  const userId = req.user; // Get userId from the decoded token set in protectRoute
+  const { title, body, denId, image, video } = req.body; // Added `image` and `video`
+  const userId = req.user; // User ID from the decoded token
 
   if (!title || !body) {
     return res.status(400).json({ message: 'Title and body are required.' });
   }
 
   try {
-    // Create the new post
+    // Determine the location and locationType based on the denId
+    const location = denId && denId !== 'profile' ? denId : userId;
+    const locationType = denId && denId !== 'profile' ? 'Den' : 'User';
+
+    // Create the post
     const post = await Post.create({
       title,
       body,
       author: userId,
+      location,
+      locationType,
+      image: image || null,
+      video: video || null,
     });
 
     // Add the post to the user's posts
     await User.findByIdAndUpdate(
       userId,
-      { $push: { posts: post._id } }, // Push the post ID into the user's posts array
+      { $push: { posts: post._id } },
       { new: true }
     );
 
-    // if denId = "profile" skip this step
-    // If denId is provided, add the post to the Den's posts
-    if (denId !== 'profile') {
-      if (!denId) {
-        return res.status(400).json({ message: 'Den ID is required.' });
-      }
-
+    // Add the post to the Den's posts if applicable
+    if (locationType === 'Den') {
       await Den.findByIdAndUpdate(
         denId,
-        { $push: { posts: post._id } }, // Push the post ID into the Den's posts array
+        { $push: { posts: post._id } },
         { new: true }
       );
     }
-
 
     res.status(201).json(post);
   } catch (error) {
@@ -48,81 +50,53 @@ export const createPost = async (req, res) => {
   }
 };
 
-
 // Get all posts
 export const getAllPosts = async (req, res) => {
   try {
-    // Optional: Implement pagination if needed
-    const page = parseInt(req.query.page) || 1; // Default to page 1
-    const limit = parseInt(req.query.limit) || 10; // Default to 10 posts per page
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
     const skip = (page - 1) * limit;
 
     const posts = await Post.find()
-      .populate('author', '_id username avatar') // Populate author field if you have username or avatar in user model
+      .populate('author', '_id username avatar email') // Populate author details
+      .populate('location', '_id name') // Populate location details (Den or User)
+      .populate({
+        path: 'comments', // Populate comments
+        populate: { path: 'author', select: '_id username avatar' }, // Populate comment authors
+      })
       .limit(limit)
       .skip(skip)
-      .sort({ createdAt: -1 }); // Sort by creation date (assuming you have a createdAt timestamp in your model)
+      .sort({ createdAt: -1 });
 
     res.status(200).json({
       success: true,
       page,
       limit,
-      totalPosts: await Post.countDocuments(), // Count total documents for pagination
+      totalPosts: await Post.countDocuments(),
       posts,
     });
   } catch (error) {
-    console.error('Error retrieving posts:', error); // Log the error for debugging
+    console.error('Error retrieving posts:', error);
     res.status(500).json({
       success: false,
       message: 'Failed to retrieve posts',
-      error: error.message || 'Internal Server Error', // Provide a more detailed error message
-    });
-  }
-};
-
-
-// Update vote count
-export const updateVoteCount = async (req, res) => {
-  const { postId } = req.params; // Get post ID from request parameters
-  const { voteType } = req.body; // Expect voteType in the request body ('upvote' or 'downvote')
-
-  if (!['upvote', 'downvote'].includes(voteType)) {
-    return res.status(400).json({ message: 'Invalid vote type. Must be "upvote" or "downvote".' });
-  }
-
-  try {
-    const post = await Post.findById(postId);
-
-    if (!post) {
-      return res.status(404).json({ message: 'Post not found' });
-    }
-
-    // Update the votes based on the vote type
-    post.votes += voteType === 'upvote' ? 1 : -1; // Increment or decrement votes
-    await post.save(); // Save the updated post
-
-    res.status(200).json({
-      success: true,
-      message: 'Vote updated successfully',
-      votes: post.votes, // Return the updated votes count
-    });
-  } catch (error) {
-    console.error('Error updating vote count:', error); // Log the error for debugging
-    res.status(500).json({
-      success: false,
-      message: 'Failed to update vote count',
       error: error.message || 'Internal Server Error',
     });
   }
 };
 
-
-// get post by id 
-export const getPost = async (req, res ) => {
+// Get a single post by ID
+export const getPost = async (req, res) => {
   const { id } = req.params;
 
   try {
-    const post = await Post.findById(id).populate('author', 'username avatar');
+    const post = await Post.findById(id)
+      .populate('author', '_id username avatar email') // Populate author
+      .populate('location', '_id name') // Populate location (Den or User)
+      .populate({
+        path: 'comments', // Populate comments
+        populate: { path: 'author', select: '_id username avatar' }, // Populate comment authors
+      });
 
     if (!post) {
       return res.status(404).json({ message: 'Post not found' });
@@ -136,15 +110,44 @@ export const getPost = async (req, res ) => {
       error: error.message || 'Internal Server Error',
     });
   }
+};
 
+// Update vote count
+export const updateVoteCount = async (req, res) => {
+  const { postId } = req.params;
+  const { voteType } = req.body;
 
-  
+  if (!['upvote', 'downvote'].includes(voteType)) {
+    return res.status(400).json({ message: 'Invalid vote type. Must be "upvote" or "downvote".' });
+  }
 
-}
+  try {
+    const post = await Post.findById(postId);
 
-// comments count 
+    if (!post) {
+      return res.status(404).json({ message: 'Post not found' });
+    }
+
+    post.votes += voteType === 'upvote' ? 1 : -1;
+    await post.save();
+
+    res.status(200).json({
+      success: true,
+      message: 'Vote updated successfully',
+      votes: post.votes,
+    });
+  } catch (error) {
+    console.error('Error updating vote count:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to update vote count',
+      error: error.message || 'Internal Server Error',
+    });
+  }
+};
+
+// Get comments count
 export const getCommentsCount = async (req, res) => {
-  
   const { id } = req.params;
 
   try {
