@@ -27,7 +27,7 @@ const userSchema = new mongoose.Schema({
     },
     banner: {
         type: String,
-        default: "hhttps://placehold.co/800?text=Banner&font=roboto",
+        default: "https://placehold.co/800?text=Banner&font=roboto",
     },
     bio : {
         
