@@ -1,15 +1,11 @@
 import { Button } from "@/components/ui/button"
-
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import React, { useState } from 'react';
-import axios, { AxiosError } from 'axios';
 import { useNavigate } from 'react-router-dom';
+import {login} from '@/api/Auth';
 
 
-interface LoginResponse {
-    token: string;
-  }
   
   const Login: React.FC = () => {
 
@@ -26,19 +22,29 @@ interface LoginResponse {
       setError(null);
   
       try {
-        const response = await axios.post<LoginResponse>('http://localhost:3000/api/auth/login', { email, password });
-        
-        // Save token to localStorage
-        localStorage.setItem('token', response.data.token);
-  
-        // Navigate to dashboard
+        // Call the login API function
+        if (!email || !password) {
+          setError('Email and password are required');
+          return;
+        }
+        const res = await login(email, password);
+        if (res.token) {
+          // Save token to local storage
+          localStorage.setItem('token', res.token);
+
+        }
+        else {
+          throw new Error('Token not found');
+        }
+
+        // Redirect to home page
         navigate('/');
-      } catch (err ) {
-        const error = err as AxiosError;
-        setError(error.message || 'Invalid email or password');
-      } finally {
-        setLoading(false);
-      }
+      } catch (error) {
+        setError('Invalid email or password');
+        console.error('Error logging in:', error);   }
+      setLoading(false);
+
+
     };
   return (
     <div className="w-full lg:grid lg:min-h-[600px] lg:grid-cols-2 xl:min-h-[800px]">

@@ -25,6 +25,10 @@ const userSchema = new mongoose.Schema({
         default: "https://i.redd.it/reddits-default-pfp-looks-like-king-moogle-mogs-minions-v0-bd7f2igjnmmc1.jpg?width=256&format=pjpg&auto=webp&s=3b962b8715fb21db615a347d9f867353f964f2bf",
 
     },
+    banner: {
+        type: String,
+        default: "hhttps://placehold.co/800?text=Banner&font=roboto",
+    },
     bio : {
         
         type: String,
@@ -52,6 +56,28 @@ const userSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Post',
     }],
+    comments: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Comment',
+    }],
+    votes: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Vote',
+    }],
+    followers: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+    }],
+    following: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+    }],
+    notifications: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Notification',
+    }],
+
+    
     
 
 

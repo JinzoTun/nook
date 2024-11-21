@@ -1,13 +1,12 @@
 import { useNavigate } from "react-router-dom";
 import Notification from "./Notification";
 import { useEffect, useState } from "react";
-import axios from 'axios'; // To make API requests
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {   Search } from "lucide-react";
 import { clearSessionVotes } from "@/utils/sessionUtils";
 import { HiPlus } from "react-icons/hi2";
-
+import {fetchUser} from "@/api/User";
 
 import {
   DropdownMenu,
@@ -18,18 +17,12 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 
-interface UserProfile {
-  _id: string;
-  username: string;
-  email: string;
-  avatar: string; // Assuming the user has an avatar
-  bio: string;
-}
+import { User } from "@/interfaces/interfaces";
 
 function Header() {
   const navigate = useNavigate();
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
-  const [userProfile, setUserProfile] = useState<UserProfile | null>(null); // Store user profile
+  const [userProfile, setUserProfile] = useState<User | null>(null); // Store user profile
 
   // Check for authentication status on component mount
   useEffect(() => {
@@ -46,15 +39,10 @@ function Header() {
   // Function to fetch user profile from backend
   const fetchUserProfile = async (token: string) => {
     try {
-      const response = await axios.get('http://localhost:3000/api/users/profile', {
-        headers: {
-          token:token // Attach token in Authorization header
-        }
-      });
-      setUserProfile(response.data); // Assuming response.data contains the user profile
+      const user = await fetchUser(token);
+      setUserProfile(user);
     } catch (error) {
-      console.error("Error fetching user profile:", error);
-      setIsAuthenticated(false); // If error, log the user out
+      console.error('Error fetching user profile:', error);
     }
   };
 
@@ -71,7 +59,7 @@ function Header() {
   };
 
   const getProfile = () => {
-    navigate(`/profile/${userProfile?._id}`);
+    navigate(`/u/${userProfile?._id}`);
   }
   const getSettings = () => {
     navigate('/settings');

@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import axios from 'axios';
 import { PostCard } from '@/components/PostCard';
 import Comments from '@/components/Comments';
 import { Post } from '@/interfaces/interfaces';
+import { fetchPostById } from '@/api/Post';
 
 export default function PostPage() {
     const { id } = useParams<{ id: string }>();
@@ -12,18 +12,16 @@ export default function PostPage() {
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
-        const fetchPost = async () => {
-            try {
-                const response = await axios.get(`http://localhost:3000/api/posts/${id}`);
-                setPost(response.data);
-            } catch (err) {
-                setError(`error ${err}` );
-            } finally {
+      if( id) 
+        fetchPostById(id)
+            .then((post) => {
+                setPost(post);
                 setLoading(false);
-            }
-        };
-
-        fetchPost();
+            })
+            .catch((error) => {
+                setError(error.message);
+                setLoading(false);
+            });
     }, [id]);
 
     if (loading) {
@@ -41,10 +39,6 @@ export default function PostPage() {
     return (
 
          <>
-       
-
-
-           
            {/* go back arrow */}
               <div className="flex items-center mb-5">
                 <svg

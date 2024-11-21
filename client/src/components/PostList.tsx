@@ -1,75 +1,66 @@
-import { useEffect, useState } from "react";
-import axios from "axios";
+import { useEffect, useState, useRef } from "react";
 import { PostCard } from "./PostCard";
-import { Button } from "./ui/button";
 import { Post } from "../interfaces/interfaces";
-
-
+import { fetchAllPosts } from "../api/Post";
+import { Loading } from "./ui/Loading"; // Import the new Loading component
 
 export default function PostList() {
   const [posts, setPosts] = useState<Post[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
+  const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [page, setPage] = useState<number>(1);
   const [hasMore, setHasMore] = useState<boolean>(true);
-  const loadedPages = new Set<number>(); // Set to track loaded pages
+  const observerRef = useRef<IntersectionObserver | null>(null);
+  const bottomElementRef = useRef<HTMLDivElement | null>(null);
 
-  const fetchPosts = async (pageNumber: number) => {
-    if (loadedPages.has(pageNumber) || !hasMore) return; // Skip if page already loaded or no more posts
-
+  const fetchPosts = async (currentPage: number) => {
+    setLoading(true);
     try {
-      const response = await axios.get(`http://localhost:3000/api/posts?page=${pageNumber}&limit=10`);
-      loadedPages.add(pageNumber); // Mark this page as loaded
-
-      if (response.data.posts.length > 0) {
+      const newPosts = await fetchAllPosts(currentPage, 10);
+      if (newPosts.length > 0) {
         setPosts((prevPosts) => [
           ...prevPosts,
-          ...response.data.posts.filter(
-            (newPost: Post) => !prevPosts.some((existingPost) => existingPost._id === newPost._id)
-          )
+          ...newPosts.filter(
+            (newPost) => !prevPosts.some((existingPost) => existingPost._id === newPost._id)
+          ),
         ]);
       } else {
         setHasMore(false); // No more posts to fetch
       }
     } catch (error) {
-      console.error("Error fetching posts:", error);
-      setError("Failed to fetch posts");
+      setError((error as Error).message);
     } finally {
       setLoading(false);
     }
   };
 
-  const loadMore = () => {
-    if (hasMore) {
-      setPage((prevPage) => prevPage + 1);
-    }
-  };
-
   useEffect(() => {
-    fetchPosts(page);
-  }, [page]);
+    if (!bottomElementRef.current || !hasMore) return;
 
-  useEffect(() => {
-    const handleScroll = () => {
-      // Check if the user has scrolled to the bottom of the page
-      const scrollPosition = window.innerHeight + document.documentElement.scrollTop;
-      const bottomPosition = document.documentElement.scrollHeight;
+    observerRef.current = new IntersectionObserver(
+      (entries) => {
+        const [entry] = entries;
+        if (entry.isIntersecting) {
+          setPage((prevPage) => prevPage + 1);
+        }
+      },
+      { threshold: 1.0 }
+    );
 
-      if (scrollPosition >= bottomPosition - 100 && hasMore) {
-        loadMore(); // Trigger load more when close to bottom
+    observerRef.current.observe(bottomElementRef.current);
+
+    return () => {
+      if (observerRef.current) {
+        observerRef.current.disconnect();
       }
     };
+  }, [bottomElementRef, hasMore]);
 
-    window.addEventListener("scroll", handleScroll);
-    
-    return () => {
-      window.removeEventListener("scroll", handleScroll); // Cleanup event listener on unmount
-    };
-  }, [hasMore]);
-
-  if (loading) {
-    return <div>Loading...</div>;
-  }
+  useEffect(() => {
+    if (hasMore) {
+      fetchPosts(page);
+    }
+  }, [page, hasMore]);
 
   if (error) {
     return <div>{error}</div>;
@@ -80,11 +71,8 @@ export default function PostList() {
       {posts.map((post) => (
         <PostCard key={post._id} post={post} />
       ))}
-      {hasMore && (
-        <Button onClick={loadMore} className="w-full mt-4">
-          Load More
-        </Button>
-      )}
+      {loading && <Loading />}
+      <div ref={bottomElementRef} style={{ height: 1 }} />
     </div>
   );
 }

@@ -1,16 +1,9 @@
-import axios from "axios";
 import { useEffect, useState } from "react";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
-import PostComment from "@/api/PostComment";
-import { Comment , NewComment } from "@/interfaces/interfaces";
-import { formatDate } from "@/utils/formatDate"; 
-
-
-
-
-
-
+import { Comment } from "@/interfaces/interfaces";
+import { formatDate } from "@/utils/formatDate";
+import { createComment, fetchComments, deleteComment } from "@/api/Comment";
 
 export default function Comments({ postId }: { postId: string }) {
   const [comments, setComments] = useState<Comment[]>([]);
@@ -18,51 +11,52 @@ export default function Comments({ postId }: { postId: string }) {
 
   // Fetch comments when the component mounts or when postId changes
   useEffect(() => {
-    axios
-      .get(`http://localhost:3000/api/comments/${postId}`, {
-        headers: { token: localStorage.getItem("token") || "" }
-      })
-      .then((response) => {
-        setComments(response.data);
-      })
-      .catch((error) => console.error("Error fetching comments:", error));
-  }, [postId]);
-
-  const handleCommentSubmit = async () => {
-    if (!content) return; // Prevent empty comments
-
-    const newComment: NewComment = {
-      userId: localStorage.getItem("token") || "",
-      postId: postId,
-      content: content,
+    const fetchCommentsData = async () => {
+      try {
+        const response = await fetchComments(postId);
+        setComments(response.data); // Use response.data as your API returns it
+      } catch (error) {
+        console.error("Error fetching comments:", error);
+      }
     };
 
+    fetchCommentsData();
+  }, [postId]);
 
+  // Handle comment submission
+  const handleCommentSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
 
-    try {
-      await PostComment(newComment);
-      setContent(""); // Clear input field
-
-      // Re-fetch comments to get the updated list with author details
-      const response = await axios.get(`http://localhost:3000/api/comments/${postId}`, {
-        headers: { token: localStorage.getItem("token") || "" }
-      });
-      setComments(response.data);
-      
-    } catch (error) {
-      console.error("Error posting comment:", error);
+    const token = localStorage.getItem("token");
+    if (!token) {
+      console.error("User is not authenticated");
+      return;
     }
-};
 
+    const newComment = { userId: token, postId, content };
 
-  const handleDeleteComment = async (commentId: string) => {
     try {
-      await axios.delete(`http://localhost:3000/api/comments/${commentId}`, {
-        headers: { token: localStorage.getItem("token")  }
-      });
+      await createComment(newComment);
+      const response = await fetchComments(postId); // Refresh comments after submission
+      setComments(response.data);
+      setContent(""); // Clear input field
+    } catch (error) {
+      console.error("Error creating comment:", error);
+    }
+  };
 
-      // Remove the deleted comment from the list
-      setComments(comments.filter((comment) => comment._id !== commentId));
+  // Handle comment deletion
+  const handleDeleteComment = async (commentId: string) => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      console.error("User is not authenticated");
+      return;
+    }
+
+    try {
+      await deleteComment(commentId, postId, token);
+      const response = await fetchComments(postId); // Refresh comments after deletion
+      setComments(response.data);
     } catch (error) {
       console.error("Error deleting comment:", error);
     }
@@ -76,14 +70,11 @@ export default function Comments({ postId }: { postId: string }) {
           className="flex justify-center items-center w-full m-2"
           value={content}
           onChange={(e) => setContent(e.target.value)}
- 
         />
-        <Button variant="secondary"  type="submit">
+        <Button variant="secondary" type="submit">
           Comment
         </Button>
       </form>
-
-      {/* Render comments if there are any */}
 
       {comments.length > 0 ? (
         comments.map((comment) => (
@@ -94,18 +85,20 @@ export default function Comments({ postId }: { postId: string }) {
               className="w-7 h-7 rounded-full"
             />
             <div>
-              <p className="text-sm">{comment.author.username}     <span className="text-xs opacity-50">
-                {formatDate(comment.createdAt)}
-              </span></p>
-
-         
+              <p className="text-sm">
+                {comment.author.username}{" "}
+                <span className="text-xs opacity-50">{formatDate(comment.createdAt)}</span>
+              </p>
               <p className="text-xs italic">{comment.content}</p>
             </div>
-            <Button className="p-2 flex " variant={"destructive"} onClick={() => handleDeleteComment(comment._id)}> delete</Button>
-
-
+            <Button
+              className="p-2 flex"
+              variant={"destructive"}
+              onClick={() => handleDeleteComment(comment._id)}
+            >
+              Delete
+            </Button>
           </div>
-
         ))
       ) : (
         <p className="m-4 opacity-50 text-xs">No comments yet</p>

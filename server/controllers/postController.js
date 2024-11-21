@@ -26,11 +26,11 @@ export const createPost = async (req, res) => {
       { new: true }
     );
 
+    // if denId = "profile" skip this step
     // If denId is provided, add the post to the Den's posts
-    if (denId) {
-      const den = await Den.findById(denId);
-      if (!den) {
-        return res.status(404).json({ message: 'Den not found.' });
+    if (denId !== 'profile') {
+      if (!denId) {
+        return res.status(400).json({ message: 'Den ID is required.' });
       }
 
       await Den.findByIdAndUpdate(
@@ -39,6 +39,7 @@ export const createPost = async (req, res) => {
         { new: true }
       );
     }
+
 
     res.status(201).json(post);
   } catch (error) {

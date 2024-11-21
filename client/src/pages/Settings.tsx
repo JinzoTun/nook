@@ -10,14 +10,19 @@ import {
 import { Input } from "@/components/ui/input";
 import Header from "@/components/Header";
 import { useEffect, useState } from "react";
-import axios from "axios";
+import { updateUser } from "@/api/User";
+import { User } from "@/interfaces/interfaces";
 
 export default function Settings() {
+  // todo : set the initial state of the user profile
   const [avatar, setAvatar] = useState<string>("");
+  const [banner, setBanner] = useState<string>("");
   const [username, setUsername] = useState<string>(""); // State for username
   const [bio, setBio] = useState<string>(""); // State for bio
+
   const [loading, setLoading] = useState<boolean>(false);
   const [token, setToken] = useState<string>("");
+  const [message, setMessage] = useState<string>("");
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -29,29 +34,38 @@ export default function Settings() {
   const handleUserUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-
     try {
-      await axios.put(
-        "http://localhost:3000/api/users/profile",
-        { avatar, username, bio }, // Send avatar, username, and bio
-        {
-          headers: {
-            token: token,
-          },
-        }
-      );
-      
-      // Clear the inputs after successful submission
-      setAvatar("");
-      setUsername("");
-      setBio("");
+      const user: Partial<User> = {};
 
-      // Refresh the page
-      window.location.reload();
-    } finally {
+      if( !avatar && !username && !bio && !banner) {
+        setMessage("Please fill in at least one field.");
+        setLoading(false);
+        return;
+      }
+      if (avatar) {
+        user.avatar = avatar;
+      }
+      if (username) {
+        user.username = username;
+      }
+      if (bio) {
+        user.bio = bio;
+      }
+      if (banner) {
+        user.banner = banner;
+      }
+      await updateUser(token, user);
       setLoading(false);
+      setMessage("Profile updated successfully !");
+      
+
+    } catch (error) {
+      console.error("Error updating user:", error);
+      setLoading(false);
+      setMessage("An error occurred. Please try again.");
     }
-  };
+    
+  }
 
   return (
     <div className="flex min-h-screen w-full flex-col">
@@ -88,6 +102,14 @@ export default function Settings() {
                     placeholder="Avatar URL"
                     className="mb-4"
                   />
+                  {/* Input for banner */}
+                  <Input
+                    type="text"
+                    value={banner}
+                    onChange={(e) => setBanner(e.target.value)}
+                    placeholder="Banner URL"
+                    className="mb-4"
+                  />
                   {/* Input for username */}
                   <Input
                     type="text"
@@ -105,10 +127,12 @@ export default function Settings() {
                   />
                 </form>
               </CardContent>
-              <CardFooter className="border-t px-6 py-4">
+              <CardFooter className="border-t px-6 py-4 flex justify-start items-center gap-4">
                 <Button type="submit" onClick={handleUserUpdate} disabled={loading}>
                   {loading ? "Saving..." : "Save"}
                 </Button>
+                <p className="text-sm text-muted-foreground">{message}</p>
+                
               </CardFooter>
             </Card>
           </div>

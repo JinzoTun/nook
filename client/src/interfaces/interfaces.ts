@@ -2,15 +2,24 @@ export interface Post {
     _id: string;
     title: string;
     body: string;
-    author: {
-      _id: string;
-      username: string;
-      avatar: string;
-    };
+    author: User;
     votes: number;  
     createdAt: string;
     comments: Comment[];
   }
+
+export interface User {
+    _id: string;
+    bio: string;
+    username: string;
+    email: string;
+    avatar: string;
+    banner: string;
+    joinedDens: Den[];
+    posts: Post[];
+    comments: Comment[];
+  }
+
 
 export interface Den {
     _id: string;
@@ -19,21 +28,16 @@ export interface Den {
     categories: string;
     avatar?: string;
     banner?: string;
-    members: 
-      {
-        _id: string;
-        username: string;
-        avatar: string;
-      }[];
+    members: User[];
+    moderators: User[];
     posts: Post[];
+    visibility: string;
   }
 
 export interface Comment {
   _id: string;
-  author: {
-    username: string 
-    avatar: string;
-  };
+  postId: string;
+  author: User;
   content: string;
   createdAt: string;
   votes: number;
@@ -44,4 +48,10 @@ export interface NewComment {
   userId : string;
   postId: string;
   content: string;
+}
+
+export interface newUser {
+  username: string;
+  email: string;
+  password: string;
 }

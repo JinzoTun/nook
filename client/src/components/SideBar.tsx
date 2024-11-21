@@ -4,30 +4,16 @@ import { Separator } from "@/components/ui/separator";
 import { HomeIcon } from "@radix-ui/react-icons";
 import { AlignLeft, Search, TrendingUp } from "lucide-react";
 import Footer from "./Footer";
-
 import { GiMountainCave   } from "react-icons/gi"; // Game Icons
 import { HiPlus } from "react-icons/hi2";
-
 import { useEffect, useState } from "react";
-import getJoinedDens from "@/api/GetJoinedDens";
-
-
-interface densProps {
-   _id: string;
-   name: string;
-   description: string;
-   categories: string;
-   avatar?: string;
-   banner?: string;
-   members: string[];
-
-
-}
-
+import {getJoinedDens} from "@/api/User";
+import { Den } from "@/interfaces/interfaces";
+import { RiFileList3Line } from "react-icons/ri";
 
 function SideBar() {
 
-   const [joinedDens, setJoinedDens] = useState<densProps[]>([]);
+   const [joinedDens, setJoinedDens] = useState<Den[]>([]);
 
    useEffect(() => {
     const token = localStorage.getItem('token');
@@ -44,10 +30,10 @@ function SideBar() {
 
   return (
     <ScrollArea
-      className="hidden h-[calc(100vh-64px)] lg:flex flex-col p-4 w-full border-r-2"
+      className="hidden h-[calc(100vh-64px)] lg:flex flex-col px-6 py-4 w-full border-r-2"
       style={{ height: "calc(100vh - 64px)" }}
     >
-      <div className="flex flex-col gap-3 m-5 text-xl  ">
+      <div className="flex flex-col gap-3 m-2 text-lg  ">
         <a href="/" className="flex gap-4 justify-start  items-center">
         <HomeIcon width={25} height={25}></HomeIcon>
            <p  className=" flex gap-4 "> Home</p>
@@ -76,7 +62,7 @@ function SideBar() {
         <Separator />
 
         <h6 className=" text-base font-light opacity-70">DENS</h6>
-        <a href="/den/create" className="flex gap-4 justify-start items-center ">
+        <a href="/d/create" className="flex gap-4 justify-start items-center ">
         <HiPlus size={30} ></HiPlus>
            <p  className=" "> Create a den</p>
         </a>
@@ -84,15 +70,20 @@ function SideBar() {
         {/* map throw joined dens key id */}
 
          {joinedDens.map((den) => (
-               <a href={`/den/${den._id}`} key={den.name} className="flex gap-4 justify-start items-center ">
+               <a href={`/d/${den._id}`} key={den.name} className="flex gap-4 justify-start items-center ">
                <img
                src={den.avatar || 'https://via.placeholder.com/80'}
                alt={den.name}
-               className="w-6 h-6 object-cover rounded-full  border-2 "
+               className="w-8 h-8 object-cover rounded-full  border-2 "
                />
                 <p  className=" font-normal"> d/{den.name}</p>
                </a>
          ))}
+  <Separator />
+  <a href="/terms" className="flex gap-4 justify-start  items-center">
+        <RiFileList3Line width={25} height={25}></RiFileList3Line>
+           <p  className=" flex gap-4 "> Terms of Service</p>
+        </a>
 
   
 

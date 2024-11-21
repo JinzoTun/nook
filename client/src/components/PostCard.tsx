@@ -1,3 +1,4 @@
+// todo : update this garbage !
 import { useState, useEffect } from "react";
 import { debounce } from 'lodash';
 import axios from "axios";
@@ -17,6 +18,8 @@ import { PiShareFatBold } from "react-icons/pi";
 import { FaRegComment } from "react-icons/fa";
 import { TbArrowBigUp, TbArrowBigDown  } from "react-icons/tb";
 import { Post } from "@/interfaces/interfaces";
+import {API} from "@/config/server"
+
 interface PostCardProps {
   post: Post;
 }
@@ -28,12 +31,12 @@ export function PostCard({ post }: PostCardProps) {
   const [CommentsCount, setCommentsCount] = useState<number>();
 
     
-
+ // todo : need update cuz it will rerender every time even user is not logged in
   // Fetch all user votes for initial load and store them in session storage
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (token) {
-      axios.get(`http://localhost:3000/api/votes`, {
+      axios.get(`${API}/api/votes`, {
         headers: { token },
       })
       .then((response) => {
@@ -48,6 +51,8 @@ export function PostCard({ post }: PostCardProps) {
       .catch((error) => console.error("Error fetching votes:", error));
     }
   }, [post._id]);
+
+
 
   // Handle voting on the post
   const handleVote = debounce(async (voteType: 'upvote' | 'downvote') => {
@@ -75,7 +80,7 @@ export function PostCard({ post }: PostCardProps) {
 
     try {
       const response = await axios.put(
-        `http://localhost:3000/api/posts/${post._id}/vote`,
+        `${API}/api/posts/${post._id}/vote`,
         { voteType },
         {
           headers: { token },
@@ -103,7 +108,7 @@ export function PostCard({ post }: PostCardProps) {
   // get comments count from http://localhost:3000/api/coments/${post._id}
   useEffect(() => {
 
-    axios.get(`http://localhost:3000/api/Comments/${post._id}`)
+    axios.get(`${API}/api/Comments/${post._id}`)
     .then((response) => {
       setCommentsCount(response.data.length);
     })
@@ -116,12 +121,12 @@ export function PostCard({ post }: PostCardProps) {
   return (
     <Card className="w-full mt-4">
       <CardHeader className="flex">
-        <a href={`/profile/${post.author._id}`} className="flex justify-start items-center gap-2 w-4/5">
+        <a href={`/u/${post.author._id}`} className="flex justify-start items-center gap-2 w-4/5">
           <Avatar className="w-8 h-8" >
             <AvatarImage src={post.author.avatar || "https://placeholder.com/300x300"} alt="avatar" />
             <AvatarFallback>{post.author.username.charAt(0)}</AvatarFallback>
           </Avatar>
-          <p className="text-sm font-medium">{post.author.username}  <span className="m-1 opacity-50 text-xs">{formatDate(post.createdAt)}</span></p>
+          <p className="text-sm font-medium">u/{post.author.username} <span className="m-1 opacity-50 text-xs">{formatDate(post.createdAt)}</span></p>
         </a>
         <CardDescription>{post.title}</CardDescription>
       </CardHeader>
@@ -156,7 +161,7 @@ export function PostCard({ post }: PostCardProps) {
           </div>
 
           <Separator orientation="vertical" />
-          <a href={`/post/${post._id}`} className="flex justify-center items-center w-1/3 gap-1">
+          <a href={`/p/${post._id}`} className="flex justify-center items-center w-1/3 gap-1">
         
         
             <FaRegComment className="w-4 h-4" />

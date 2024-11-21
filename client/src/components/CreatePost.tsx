@@ -1,10 +1,9 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Card } from '@/components/ui/card';
-import getJoinedDens from '@/api/GetJoinedDens'; // API function to fetch joined Dens
+import {getJoinedDens} from '@/api/User'; // API function to fetch joined Dens
 import {
   Select,
   SelectItem,
@@ -15,10 +14,9 @@ import {
   SelectLabel,
 } from './ui/select';
 
-interface Den {
-  _id: string;
-  name: string;
-}
+import { Den } from '@/interfaces/interfaces';
+import { createPost } from '@/api/Post';
+
 
 export default function CreatePost() {
   const [title, setTitle] = useState<string>('');
@@ -53,20 +51,21 @@ export default function CreatePost() {
     const token = localStorage.getItem('token'); // Get token from local storage
 
     if (!selectedDenId) {
-      setMessage('Please select a Den before creating the post.');
+      setMessage('Please select where you want to post.');
       setLoading(false);
       return;
     }
 
+    if (!token) {
+      setMessage('You need to be logged in to create a post.');
+      setLoading(false);
+      return;
+
+    }
+
+
     try {
-      await axios.post(
-        'http://localhost:3000/api/posts',
-        { title, body, denId: selectedDenId }, // Send selected Den ID in the request body
-        {
-          headers: {
-            token: token, // Use your token header as defined in the middleware
-          },
-        }
+      await createPost(title, body, selectedDenId, token! /* Non-null assertion */    
       );
 
       setMessage('Post created successfully!');
@@ -111,15 +110,21 @@ export default function CreatePost() {
           </SelectTrigger>
           <SelectContent>
             <SelectGroup>
-              {/*              \\ todo : add string for user
-*/}
+              
+              <SelectLabel>Your Profile</SelectLabel>
+              <SelectItem value={"profile"}>u/profile</SelectItem>
               <SelectLabel>Your Dens</SelectLabel>
-
               {joinedDens.map((den) => (
                 <SelectItem key={den._id} value={den._id}>
-                  {den.name}
+                 <div className='flex justify-end items-center gap-2'><img
+                  src={den.avatar || 'https://via.placeholder.com/60'}
+                  alt={den.name}
+                  className="w-6 h-6 rounded-full object-cover border-2 border-white" />
+                  d/{den.name}
+                  </div>
                 </SelectItem>
               ))}
+
             </SelectGroup>
           </SelectContent>
         </Select>

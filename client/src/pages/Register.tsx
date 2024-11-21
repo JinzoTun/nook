@@ -1,15 +1,10 @@
 import { Button } from "@/components/ui/button"
-
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import React, { useState } from 'react';
-import axios, { AxiosError } from 'axios';
 import { useNavigate } from 'react-router-dom';
+import { register } from "../api/Auth";
 
-
-interface LoginResponse {
-    token: string;
-  }
 
   const Register: React.FC = () => {
 
@@ -25,22 +20,21 @@ interface LoginResponse {
       e.preventDefault();
       setLoading(true);
       setError(null);
-  
+
       try {
-        const response = await axios.post<LoginResponse>('http://localhost:3000/api/auth/register', {username, email, password });
-        
-        // Save token to localStorage
-        localStorage.setItem('token', response.data.token);
-  
-        // Navigate to dashboard
+        const response = await register({ username, email, password });
+        localStorage.setItem('token', response.token);
         navigate('/');
-      } catch (err ) {
-        const error = err as AxiosError;
-        setError(error.message || 'Invalid email or password');
+      } catch (error) {
+        setError("An error occurred. Please try again later.");
+        console.error("Error :", error);
       } finally {
         setLoading(false);
       }
-    };
+    }
+
+  
+   
   return (
     <div className="w-full lg:grid lg:min-h-[600px] lg:grid-cols-2 xl:min-h-[800px]">
       <div className="flex items-center justify-center py-12">

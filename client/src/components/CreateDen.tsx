@@ -2,7 +2,6 @@ import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Card } from './ui/card';
 import { useState } from 'react';
-import axios from 'axios';
 import {
   Select,
   SelectContent,
@@ -11,20 +10,17 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-interface RuleProps {
-  title: string;
-  description: string;
-}
+//todo : add rules for den creation
+import { CreateDen as CreateDenAPI } from '@/api/Den';
+import { Den } from '@/interfaces/interfaces';
 
-function CreateDen() {
+export default function CreateDen() {
   const [name, setName] = useState<string>('');
   const [description, setDescription] = useState<string>('');
-  const [avatar, setAvatar] = useState<string>('');
-  const [banner, setBanner] = useState<string>('');
+  const [avatar, setAvatar] = useState<string | undefined>();
+  const [banner, setBanner] = useState<string | undefined>();
   const [categories, setCategories] = useState<string>('');
-  const [rules, setRules] = useState<RuleProps>({ title: '', description: '' });
   const [visibility, setVisibility] = useState<string>('public');
-  const [tags, setTags] = useState<string>('');
   const [message, setMessage] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(false);
 
@@ -33,32 +29,48 @@ function CreateDen() {
     setLoading(true);
 
     const token = localStorage.getItem('token');
+    if (!token) {
+      setMessage('Authentication required.');
+      setLoading(false);
+      return;
+    }
 
     try {
-      await axios.post(
-        'http://localhost:3000/api/dens',
-        { name, description, visibility, categories, tags, rules, banner, avatar },
-        {
-          headers: {
-            token: token || '',
-          },
-        }
-      );
+      // Convert categories string to array
+      const categoriesArray = categories.split(',').map((cat) => cat.trim());
+
+      const newDen: Den = {
+        _id: '', // Backend will generate this
+        name,
+        description,
+        categories: categoriesArray.join(','),
+        avatar,
+        banner,
+        members: [], // Backend will handle members
+        posts: [], // Backend will handle posts
+        visibility,
+      };
+
+      // Use API function
+      await CreateDenAPI(newDen, token);
 
       setMessage('Den created successfully!');
-      setName('');
-      setDescription('');
-      setAvatar('');
-      setBanner('');
-      setCategories('');
-      setTags('');
-      setRules({ title: '', description: '' });
+      resetForm();
     } catch (error) {
       setMessage('Failed to create den. Try again later.');
       console.error('Error creating den:', error);
     } finally {
       setLoading(false);
     }
+  };
+
+  const resetForm = () => {
+    setName('');
+    setDescription('');
+    setAvatar(undefined);
+    setBanner(undefined);
+    setCategories('');
+    setVisibility('public');
   };
 
   return (
@@ -87,19 +99,17 @@ function CreateDen() {
           {/* Avatar */}
           <Input
             type="text"
-            value={avatar}
+            value={avatar || ''}
             onChange={(e) => setAvatar(e.target.value)}
             placeholder="Avatar URL"
-            required
           />
 
           {/* Banner */}
           <Input
             type="text"
-            value={banner}
+            value={banner || ''}
             onChange={(e) => setBanner(e.target.value)}
             placeholder="Banner URL"
-            required
           />
 
           {/* Categories */}
@@ -123,32 +133,6 @@ function CreateDen() {
             </SelectContent>
           </Select>
 
-          {/* Rules 
-          <Input
-            type="text"
-            value={rules.title}
-            onChange={(e) => setRules((prev) => ({ ...prev, title: e.target.value }))}
-            placeholder="Rule Title"
-            required
-          />
-          <Input
-            type="text"
-            value={rules.description}
-            onChange={(e) => setRules((prev) => ({ ...prev, description: e.target.value }))}
-            placeholder="Rule Description"
-            required
-          />
-          */}
-
-          {/* Tags */}
-          <Input
-            type="text"
-            value={tags}
-            onChange={(e) => setTags(e.target.value)}
-            placeholder="Tags (comma-separated)"
-            required
-          />
-
           {/* Submit Button */}
           <Button type="submit" disabled={loading}>
             {loading ? "Creating Den..." : "Create Den"}
@@ -169,5 +153,3 @@ function CreateDen() {
     </div>
   );
 }
-
-export default CreateDen;

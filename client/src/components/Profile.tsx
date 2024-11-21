@@ -1,14 +1,13 @@
-import axios from 'axios';
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { PostCard } from './PostCard';
-import {Post } from '../interfaces/interfaces';
-
-
+import { Post, User } from '../interfaces/interfaces';
+import { fetchUser } from '../api/User';
+import { Loading } from './ui/Loading';
 
 function Profile() {
-
   const [avatar, setAvatar] = useState<string>('');
+  const [banner, setBanner] = useState<string>('');
   const [username, setUsername] = useState<string>('');
   const [bio, setBio] = useState<string>('');
   const [posts, setPosts] = useState<Post[]>([]);
@@ -17,7 +16,7 @@ function Profile() {
   const { id } = useParams<{ id: string }>();
 
   useEffect(() => {
-    const fetchProfile = async () => {
+    const loadProfile = async () => {
       const token = localStorage.getItem('token');
       if (!token) {
         setError('User is not authenticated.');
@@ -26,76 +25,76 @@ function Profile() {
       }
 
       try {
-        const response = await axios.get(`http://localhost:3000/api/users/profile/${id}`, {
-          headers: { token : token },
-        });
-
-        const data = response.data;
-        console.log(data);
-
-        if (!data) {
-          setError('Invalid API response.');
-          setLoading(false);
-          return;
-        }
+        const data: User = await fetchUser(token);
 
         setAvatar(data.avatar || '/default-avatar.png');
+        setBanner(data.banner || '/default-banner.png');
         setUsername(data.username || 'Unknown User');
         setBio(data.bio || 'No bio available.');
         setPosts(data.posts || []);
+
         setError(null);
       } catch (err) {
-        console.error('Error fetching user profile:', err);
         setError('Failed to fetch user profile. Please try again later.');
+        console.error('Error fetching user profile:', err);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchProfile();
+    loadProfile();
   }, [id]);
 
-    if (loading) {
-        return <div>Loading
-        </div>;
-    }
-
+  if (loading) {
+    return <Loading />;
+  }
 
   return (
     <div className="profile-container">
-      <h1 className="text-2xl font-bold mb-4">Profile</h1>
-  
       {error ? (
         <p className="text-red-500">{error}</p>
       ) : (
-        <div className="profile-details">
-          {/* Avatar */}
-          <img
-            src={avatar && typeof avatar === 'string' ? avatar : '/default-avatar.png'}
-            alt={username || 'User Avatar'}
-            className="w-32 h-32 rounded-full"
-          />
-  
-          {/* Username */}
-          <h2 className="text-xl font-semibold mt-4">{username || 'Unknown User'}</h2>
-  
-          {/* Bio */}
-          <p className="text-gray-600 mt-2">{bio || 'No bio available.'}</p>
-  
+        <div>
+          {/* Banner */}
+          <div
+            className="relative w-full h-48 bg-gray-200"
+            style={{
+              backgroundImage: `url(${banner})`,
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
+            }}
+          >
+            {/* Avatar */}
+            <div className="absolute bottom-[-50px] left-8">
+              <img
+                src={avatar}
+                alt={username || 'User Avatar'}
+                className="w-24 h-24 rounded-full border-4 border-white shadow-lg"
+              />
+            </div>
+          </div>
+
+          {/* User Info */}
+          <div className="mt-16 px-8">
+            <h1 className="text-2xl font-bold">{username}</h1>
+            <p className="text-gray-600 mt-2">{bio}</p>
+          </div>
+
           {/* Posts */}
-          <h3 className="text-lg font-bold mt-6">Posts</h3>
-          <div className="posts-list mt-4 space-y-4">
-            {posts.length > 0 ? (
-              posts.map((post) => <PostCard post={post} key={post._id} />)
-            ) : (
-              <p className="text-gray-500">No posts available.</p>
-            )}
+          <div className="mt-6 px-8">
+            <h2 className="text-lg font-bold mb-4">Posts</h2>
+            <div className="posts-list space-y-4">
+              {posts.length > 0 ? (
+                posts.map((post) => <PostCard post={post} key={post._id} />)
+              ) : (
+                <p className="text-gray-500">No posts available.</p>
+              )}
+            </div>
           </div>
         </div>
       )}
     </div>
   );
-  
 }
 
 export default Profile;
