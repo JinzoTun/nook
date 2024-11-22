@@ -71,18 +71,18 @@ function Header() {
   }
 
   return (
-    <div className="sticky top-0 flex h-16 items-center gap-4 border-b bg-background px-4 md:px-6">
+    <div className="sticky z-50 top-0 flex h-16 items-center gap-4 border-b bg-background px-4 md:px-6">
       <header className="flex h-16 justify-between w-screen items-center p-4 border-b-2">
-        <a className="text-3xl font-bold ml-6" href="/">Nook</a>
+        <a className="text-3xl font-bold" href="/">Nook</a>
 
-        <div className="flex w-full max-w-sm items-center space-x-2">
-          <form className="ml-auto flex-1 sm:flex-initial">
-            <div className="relative">
+        <div className="flex w-full justify-center items-center">
+          <form className="m-auto  ">
+            <div className=" relative">
               <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
               <Input
                 type="search"
                 placeholder="Search..."
-                className="pl-8 sm:w-[300px] md:w-[200px] lg:w-[300px]"
+                className="pl-8  sm:w-[300px] md:w-[200px] lg:w-[300px]"
               />
             </div>
           </form>

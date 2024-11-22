@@ -24,11 +24,16 @@ function DenPage() {
         setDen(denData);
         setPosts(denData.posts);
 
-        const token = localStorage.getItem("token");
+        const token = localStorage.getItem('token');
         if (token) {
-          const joinedDens = await getJoinedDens(token);
-          setIsJoined(joinedDens.some((joinedDen) => joinedDen._id === id));
+            getJoinedDens(token).then((dens) => {
+                setIsJoined(dens.some((den) => den._id === id))
+            });
         }
+
+
+     
+        
       } catch (err) {
         setError("Failed to fetch Den or posts.");
         console.error("Error fetching Den or posts:", err);
@@ -71,37 +76,49 @@ function DenPage() {
     <div className="min-h-screen">
       {den && (
         <>
-          {/* Banner Section */}
+          
+        <div>
+          {/* Banner */}
           <div
-            className="relative w-full h-40"
+            className="relative w-full h-48 bg-gray-200 rounded-md border-2 shadow-lg"
             style={{
-              backgroundImage: `url(${den.banner || "/default-banner.jpg"})`,
-              backgroundSize: "cover",
-              backgroundPosition: "center",
+              backgroundImage: `url(${den.banner || "https://via.placeholder.com/800x200"})`,
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
             }}
           >
-            <div className="absolute bottom-[-40px] left-8 flex items-center">
+            {/* Avatar */}
+            <div className="absolute bottom-[-50px] left-8">
               <img
-                src={den.avatar || "https://via.placeholder.com/80"}
-                alt={`${den.name} Avatar`}
-                className="w-20 h-20 rounded-full border-4 border-white shadow-md"
+                src={den.avatar || "https://via.placeholder.com/100"}
+                alt={den.name || 'User Avatar'}
+                className="w-24 h-24 rounded-full border-2 border-white shadow-lg"
               />
-              <div className="ml-4">
-                <h1 className="text-2xl font-bold">d/{den.name}</h1>
-                <p className="">{den.description || "No description available."}</p>
-              </div>
+            </div>
             </div>
           </div>
 
-          {/* Join/Leave Button */}
-          <div className="p-4 flex justify-end">
+          {/* User Info */}
+          <div className=" pl-2">
+                        {/* Join/Leave Button */}
+          <div className="p-4 flex  self-end justify-end">
             <Button onClick={handleJoinOrLeaveDen}>
               {isJoined ? "Leave" : "Join"}
             </Button>
           </div>
+            <div>
+              
+            <h1 className="text-2xl font-bold">d/{den.name}</h1>
+            <p className="text-gray-500 mt-2">{den.description}</p>
+            </div >
+
+     
+          </div>
+
+     
 
           {/* moderator Section render if length > 0 */}
-          <div className="px-8 py-4">
+          <div className="py-4">
             {den.moderators.length > 0 && (
               <div className="flex gap-4">
                 <h2 className="text-xl font-semibold">Moderators:</h2>
@@ -121,7 +138,7 @@ function DenPage() {
           </div>
 
           {/* Filters and Posts Section */}
-          <div className="p-4">
+          <div className="">
             <div className="flex justify-between items-center">
               <div className="flex gap-4">
                 <Button variant="secondary">New</Button>

@@ -29,8 +29,8 @@ export async function fetchUser( token: string): Promise<User> {
     });
     return response.data;
   } catch (error) {
-    console.error('Error fetching user profile:', error);
-    throw new Error('Failed to fetch user profile. Please try again later.');
+    console.error("Error fetching user:", error);
+    throw new Error("Failed to fetch user. Please try again later.");
   }
 }
 
@@ -46,5 +46,16 @@ export async function updateUser(
   } catch (error) {
     console.error('Error updating user:', error);
     throw new Error('Failed to update user. Please try again later.');
+  }
+}
+
+// fetch user by id passed as parameter
+export async function fetchUserById(id: string): Promise<User> {
+  try {
+    const response = await axios.get(`${API}/api/users/profile/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching user by id:', error);
+    throw new Error('Failed to fetch user. Please try again later.');
   }
 }

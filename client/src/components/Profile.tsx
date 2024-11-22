@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { PostCard } from './PostCard';
 import { Post, User } from '../interfaces/interfaces';
-import { fetchUser } from '../api/User';
+import { fetchUserById } from '../api/User';
 import { Loading } from './ui/Loading';
 
 function Profile() {
@@ -25,7 +25,8 @@ function Profile() {
       }
 
       try {
-        const data: User = await fetchUser(token);
+
+        const data: User = await fetchUserById(id!);
 
         setAvatar(data.avatar || '/default-avatar.png');
         setBanner(data.banner || '/default-banner.png');
@@ -50,14 +51,14 @@ function Profile() {
   }
 
   return (
-    <div className="profile-container">
+    <div className="">
       {error ? (
         <p className="text-red-500">{error}</p>
       ) : (
         <div>
           {/* Banner */}
           <div
-            className="relative w-full h-48 bg-gray-200"
+            className="relative w-full h-48 bg-gray-200 rounded-md border-2 shadow-lg"
             style={{
               backgroundImage: `url(${banner})`,
               backgroundSize: 'cover',
@@ -69,19 +70,19 @@ function Profile() {
               <img
                 src={avatar}
                 alt={username || 'User Avatar'}
-                className="w-24 h-24 rounded-full border-4 border-white shadow-lg"
+                className="w-24 h-24 rounded-full border-2 border-white shadow-lg"
               />
             </div>
           </div>
 
           {/* User Info */}
           <div className="mt-16 px-8">
-            <h1 className="text-2xl font-bold">{username}</h1>
-            <p className="text-gray-600 mt-2">{bio}</p>
+            <h1 className="text-2xl font-bold">u/{username}</h1>
+            <p className="text-gray-500 mt-2">{bio}</p>
           </div>
 
           {/* Posts */}
-          <div className="mt-6 px-8">
+          <div className="mt-6 ">
             <h2 className="text-lg font-bold mb-4">Posts</h2>
             <div className="posts-list space-y-4">
               {posts.length > 0 ? (
