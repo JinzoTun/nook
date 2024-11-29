@@ -4,20 +4,17 @@ import { API } from "@/config/server";
 
 
 
-export async function getJoinedDens(token: string) {
+export async function getJoinedDens ( token: string ) {
   try {
-      // Check if dens already exist in localStorage
-      const cachedDens = localStorage.getItem('dens');
-      if (cachedDens) {
-          return JSON.parse(cachedDens);
-      }
-      
-      const response = await axios.get<Den[]>(`${API}/api/users/dens`, {
+      const response = await axios.get<Den[]>(`${API}/api/users/dens`,{
           headers: {
               token: token
           }
       });
+      // save the response data locally
       localStorage.setItem('dens', JSON.stringify(response.data));
+
+
       return response.data;
   } catch (error) {
       console.error("Error getting joined dens:", error);
