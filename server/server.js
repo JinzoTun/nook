@@ -2,55 +2,49 @@ import express from 'express';
 import mongoose from 'mongoose';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import morgan from 'morgan';
 
-import userRoutes from './routes/usersRoutes.js'; // Import user routes
-import authRoutes from './routes/authRoutes.js'; // Import authentication routes
-import postRoutes from './routes/postRoutes.js' // Import post routes
-import voteRoutes from "./routes/voteRoutes.js";  // Import vote routes
-import commentsRoutes from './routes/commentsRoutes.js'; // Import comments routes
-import denRoutes from './routes/denRoutes.js'; // Import den routes
+import userRoutes from './routes/usersRoutes.js';
+import authRoutes from './routes/authRoutes.js';
+import postRoutes from './routes/postRoutes.js';
+import commentsRoutes from './routes/commentsRoutes.js';
+import denRoutes from './routes/denRoutes.js';
 
 dotenv.config();
 
 const PORT = process.env.PORT || 5000;
 const app = express();
 
+// Middleware
 app.use(cors());
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(morgan('dev'));
 
-app.use((req, res, next) => {
-  console.log(req.method, req.path);
-  next();
+// Routes
+app.use('/api/auth', authRoutes);
+app.use('/api/users', userRoutes);
+app.use('/api/posts', postRoutes);
+app.use('/api/comments', commentsRoutes);
+app.use('/api', denRoutes);
+
+// Health Check
+app.get('/api/status', (req, res) => {
+  res.json({ status: "OK", uptime: process.uptime() });
 });
 
-app.get('/', (req, res) => {
-  res.send('API is running...');
-});
-
+// Error Handler
 app.use((err, req, res, next) => {
   console.error(err.stack);
-  res.status(500).send('Something broke!');
+  res.status(err.status || 500).json({
+    success: false,
+    message: err.message || "Internal Server Error",
+  });
 });
 
-
-// Define routes
-app.use('/api/auth', authRoutes); // Authentication routes
-app.use('/api/users', userRoutes); // User management routes
-app.use('/api/posts', postRoutes); // Post routes
-app.use('/api', voteRoutes); // Vote routes   TODO: !! change to /api/votes
-app.use('/api/comments', commentsRoutes); // Comment routes
-app.use('/api', denRoutes); // Den routes
-
-
+// MongoDB Connection
 mongoose.connect(process.env.MONGO_URI)
   .then(() => {
-    app.listen(PORT, () => {
-      console.log(`Server is running on port ${PORT}`);
-    });
-    console.log('Connected to MongoDB');
+    app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
   })
-  .catch((error) => {
-    console.log('Error connecting to MongoDB:', error.message);
-  });
-
-
+  .catch((error) => console.log('Error connecting to MongoDB:', error.message));

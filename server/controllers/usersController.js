@@ -1,4 +1,52 @@
+import cloudinary from '../config/cloudinary.js';
 import User from '../models/user.js';
+
+// Update user profile (protected route)
+export const updateUserProfile = async (req, res) => {
+    try {
+        const user = await User.findById(req.user);
+
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        // Update fields
+        const { username, email, password, bio } = req.body;
+
+        if (username) user.username = username;
+        if (email) user.email = email;
+        if (password) user.password = password; // Ensure hashing before saving
+        if (bio) user.bio = bio;
+
+        // Upload avatar if provided
+        if (req.files?.avatar) {
+            const avatarUpload = await cloudinary.uploader.upload(req.files.avatar[0].path, {
+                folder: 'nook/avatars',
+                public_id: `avatar_${user._id}`,
+                overwrite: true,
+            });
+            user.avatar = avatarUpload.secure_url; // Update user avatar URL
+        }
+
+        // Upload banner if provided
+        if (req.files?.banner) {
+            const bannerUpload = await cloudinary.uploader.upload(req.files.banner[0].path, {
+                folder: 'nook/banners',
+                public_id: `banner_${user._id}`,
+                overwrite: true,
+            });
+            user.banner = bannerUpload.secure_url; // Update user banner URL
+        }
+
+        await user.save();
+
+        res.json({ message: 'Profile updated successfully', user });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
 
 // Get user profile (protected route)
 export const getUserProfile = async (req, res) => {
@@ -39,32 +87,6 @@ export const getUserById = async (req, res) => {
     }
 };
 
-// Update user profile (protected route)
-export const updateUserProfile = async (req, res) => {
-    const { avatar, username, email, password, bio, banner } = req.body;
-
-    try {
-        const user = await User.findById(req.user);
-
-        if (!user) {
-            return res.status(404).json({ message: 'User not found' });
-        }
-
-        // Update the user's information if provided
-        if (avatar) user.avatar = avatar;
-        if (username) user.username = username;
-        if (email) user.email = email;
-        if (password) user.password = password; // Will be hashed before save
-        if ( bio) user.bio = bio ;
-        if (banner) user.banner = banner;
-
-        await user.save();
-        res.json({ message: 'Profile updated successfully' });
-    } catch (error) {
-        res.status(500).json({ message: 'Server error' });
-    }
-};
-
 // Delete user account (protected route)
 export const deleteUser = async (req, res) => {
     try {
@@ -92,7 +114,6 @@ export const getAllUsers = async (req, res) => {
 };
 
 // List all joined Dens
-
 export const getJoinedDens = async (req, res) => {
     try {
         const user = await User.findById(req.user).populate('joinedDens');

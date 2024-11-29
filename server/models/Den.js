@@ -57,14 +57,18 @@ const DenSchema = new mongoose.Schema(
     ],
     banner: {
       type: String,
+      default : "https://res.cloudinary.com/du9fhtw2x/image/upload/v1732911875/nook/uploads/ypuooz8w13zq1sssb5ki.png",
+
     },
     avatar: {
       type: String,
+      default: "https://res.cloudinary.com/du9fhtw2x/image/upload/v1732911989/nook/uploads/h03qoi1dcdktiuxfxu5u.jpg",
     },
     flair: [
       {
         text: String,
         color: String,
+        
       },
     ],
     moderators: [

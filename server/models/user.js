@@ -22,12 +22,11 @@ const userSchema = new mongoose.Schema({
     },
     avatar: {
         type: String,
-        default: "https://i.redd.it/reddits-default-pfp-looks-like-king-moogle-mogs-minions-v0-bd7f2igjnmmc1.jpg?width=256&format=pjpg&auto=webp&s=3b962b8715fb21db615a347d9f867353f964f2bf",
-
+        default: "https://res.cloudinary.com/du9fhtw2x/image/upload/v1732913187/nook/uploads/qmvhha8mjvxbs0j48mbn.png"
     },
     banner: {
         type: String,
-        default: "https://placehold.co/800?text=Banner&font=roboto",
+        default: "https://res.cloudinary.com/du9fhtw2x/image/upload/v1732911875/nook/uploads/ypuooz8w13zq1sssb5ki.png",
     },
     bio : {
         

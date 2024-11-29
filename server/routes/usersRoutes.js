@@ -1,5 +1,6 @@
 import express from 'express';
 import { protectRoute } from '../middlewares/authMiddlware.js';
+import multer from '../middlewares/multer.js'; // Import Multer setup
 import {
     getUserProfile,
     updateUserProfile,
@@ -13,7 +14,18 @@ const router = express.Router();
 
 // User profile routes
 router.get('/profile', protectRoute, getUserProfile); // Get logged-in user's profile
-router.put('/profile', protectRoute, updateUserProfile); // Update profile
+
+// Update profile with Multer middleware to handle avatar and banner uploads
+router.put(
+    '/profile',
+    protectRoute,
+    multer.fields([
+        { name: 'avatar', maxCount: 1 }, // Handle single avatar upload
+        { name: 'banner', maxCount: 1 }, // Handle single banner upload
+    ]),
+    updateUserProfile
+);
+
 router.delete('/profile', protectRoute, deleteUser); // Delete account
 
 // Admin route to get all users
