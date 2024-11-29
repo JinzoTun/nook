@@ -1,16 +1,40 @@
-import Den from '../models/Den.js';
-import User from '../models/user.js';
 
-// Create a new Den and join 
+import cloudinary from '../config/cloudinary.js'; // Cloudinary config
+import Den from '../models/Den.js'; // Den model
+import User from '../models/user.js'; // User model
+
+// Create a new Den and join (with avatar and banner upload)
 export const createDen = async (req, res) => {
   try {
-    const { name, description, visibility, categories, tags, rules, banner, avatar, flair } = req.body;
+    const { name, description, visibility, categories, tags, rules, flair } = req.body;
     const createdBy = req.user; // Assuming `req.user` holds the authenticated user
 
     // Check if Den with the same name already exists
     const existingDen = await Den.findOne({ name });
     if (existingDen) {
       return res.status(400).json({ message: 'Den name already exists.' });
+    }
+
+    // Upload avatar if provided
+    let avatar = null;
+    if (req.files?.avatar) {
+      const avatarUpload = await cloudinary.uploader.upload(req.files.avatar[0].path, {
+        folder: 'nook/den/avatars',
+        public_id: `avatar_${Date.now()}`,
+        overwrite: true,
+      });
+      avatar = avatarUpload.secure_url; // Store the Cloudinary URL
+    }
+
+    // Upload banner if provided
+    let banner = null;
+    if (req.files?.banner) {
+      const bannerUpload = await cloudinary.uploader.upload(req.files.banner[0].path, {
+        folder: 'nook/den/banners',
+        public_id: `banner_${Date.now()}`,
+        overwrite: true,
+      });
+      banner = bannerUpload.secure_url; // Store the Cloudinary URL
     }
 
     const newDen = new Den({
@@ -21,9 +45,9 @@ export const createDen = async (req, res) => {
       categories,
       tags,
       rules,
-      banner,
-      avatar,
       flair,
+      avatar, // Store the avatar URL
+      banner, // Store the banner URL
     });
 
     const savedDen = await newDen.save();
@@ -34,40 +58,15 @@ export const createDen = async (req, res) => {
 
     user.joinedDens.addToSet(savedDen._id); // Use `addToSet` to avoid duplicates
     den.members.addToSet(createdBy); // Use `addToSet` to avoid duplicates
-    await user.save(); 
-
+    await user.save();
 
     res.status(201).json(savedDen);
-
   } catch (error) {
     res.status(500).json({ message: 'Error creating Den', error: error.message });
   }
 };
 
-// Get a specific Den by ID
-export const getDenById = async (req, res) => {
-  try {
-    const den = await Den.findById(req.params.denId)
-        .populate('members')
-        .populate('moderators')
-        .populate({
-          path: 'posts',
-          populate: {
-            path: 'author' // Populate the 'author' field within 'posts'
-          },
-        });
-
-    if (!den) {
-      return res.status(404).json({ message: 'Den not found' });
-    }
-
-    res.json(den);
-  } catch (error) {
-    res.status(500).json({ message: 'Error fetching Den', error: error.message });
-  }
-};
-
-// Update a Den
+// Update Den (Handle file upload for avatar/banner)
 export const updateDen = async (req, res) => {
   try {
     const { denId } = req.params;
@@ -77,16 +76,44 @@ export const updateDen = async (req, res) => {
     const den = await Den.findById(denId);
     if (!den) return res.status(404).json({ message: 'Den not found' });
 
-    if (!den.createdBy.equals(req.user._id) && !den.moderators.includes(req.user._id)) {
+    if (!den.createdBy._id.equals(req.user) && !den.moderators.includes(req.user)) {
       return res.status(403).json({ message: 'Not authorized to update this Den' });
     }
 
-    const updatedDen = await Den.findByIdAndUpdate(denId, updates, { new: true });
+    // Get the new avatar and banner if they are uploaded
+    let avatar = den.avatar;
+    if (req.files?.avatar) {
+      const avatarUpload = await cloudinary.uploader.upload(req.files.avatar[0].path, {
+        folder: 'nook/den/avatars',
+        public_id: `avatar_${denId}`,
+        overwrite: true,
+      });
+      avatar = avatarUpload.secure_url; // Update the avatar URL
+    }
+
+    let banner = den.banner;
+    if (req.files?.banner) {
+      const bannerUpload = await cloudinary.uploader.upload(req.files.banner[0].path, {
+        folder: 'nook/den/banners',
+        public_id: `banner_${denId}`,
+        overwrite: true,
+      });
+      banner = bannerUpload.secure_url; // Update the banner URL
+    }
+
+    // Apply updates
+    const updatedDen = await Den.findByIdAndUpdate(
+      denId,
+      { ...updates, avatar, banner },
+      { new: true }
+    );
+
     res.json(updatedDen);
   } catch (error) {
     res.status(500).json({ message: 'Error updating Den', error: error.message });
   }
 };
+
 
 // Delete a Den
 export const deleteDen = async (req, res) => {
@@ -201,5 +228,32 @@ export const leaveDen = async (req, res) => {
   } catch (error) {
     console.error('Error leaving Den:', error);
     res.status(500).json({ message: 'Error leaving Den', error: error.message });
+  }
+};
+
+// Get a specific Den by ID
+export const getDenById = async (req, res) => {
+  try {
+    const den = await Den.findById(req.params.denId)
+        .populate('members')
+        .populate('moderators')
+        .populate({
+          path: 'posts',
+          populate: {
+            path: 'author' // Populate the 'author' field within 'posts'
+          },
+        })
+        // populate den's author createdBy field
+        .populate('createdBy');
+        
+        
+
+    if (!den) {
+      return res.status(404).json({ message: 'Den not found' });
+    }
+
+    res.json(den);
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching Den', error: error.message });
   }
 };

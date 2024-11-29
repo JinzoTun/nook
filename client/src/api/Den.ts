@@ -5,7 +5,7 @@ import { API } from "@/config/server";
 export async function JoinDen(denId: string, token: string) {
     try {
         const response = await axios.post(
-            `${API}/api/dens/${denId}/join`,
+            `${API}/api/join-den/${denId}`,
             {},
             {
                 headers: {
@@ -23,7 +23,7 @@ export async function JoinDen(denId: string, token: string) {
 export async function LeaveDen(denId: string, token: string) {
     try {
         const response = await axios.post(
-            `${API}/api/dens/${denId}/leave`,
+            `${API}/api/leave-den/${denId}`,
             {},
             {
                 headers: {
@@ -41,7 +41,7 @@ export async function LeaveDen(denId: string, token: string) {
 export async function CreateDen(den: Den, token: string) {
     try {
         const response = await axios.post(
-            `${API}/api/dens`,
+            `${API}/api/create-den`,
             den,
             {
                 headers: {
@@ -68,7 +68,7 @@ export async function getDens() {
 
 export async function getDenById(id: string) {
     try {
-        const response = await axios.get<Den>(`${API}/api/dens/${id}`);
+        const response = await axios.get<Den>(`${API}/api/den/${id}`);
         return response.data;
     } catch (error) {
         console.error("Error getting den by id:", error);

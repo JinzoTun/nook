@@ -37,6 +37,7 @@ export interface Den {
     moderators: User[];
     posts: Post[];
     visibility: string;
+    createdBy: User;
   }
 
 export interface Comment {

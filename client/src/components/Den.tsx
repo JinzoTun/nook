@@ -115,6 +115,17 @@ function DenPage() {
      
           </div>
 
+          {/* den author */}
+          <div className="flex gap-4 items-center py-4">
+            <h2 className="text-xl font-semibold">Created by:</h2>
+            <img
+              src={den.createdBy.avatar || "https://via.placeholder.com/40"}
+              alt={den.createdBy.username}
+              className="w-8 h-8 rounded-full border-2 border-white"
+            />
+            <p>{den.createdBy.username}</p>
+          </div>
+         
      
 
           {/* moderator Section render if length > 0 */}
