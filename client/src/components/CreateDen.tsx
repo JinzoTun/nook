@@ -40,17 +40,14 @@ export default function CreateDen() {
       // Convert categories string to array
       const categoriesArray = categories.split(',').map((cat) => cat.trim());
 
-      const newDen: Den = {
-        _id: '', // Backend will generate this
+      const newDen : Partial<Den> = {
         name,
         description,
         categories: categoriesArray.join(','),
         avatar,
         banner,
-        members: [], // Backend will handle members
-        posts: [], // Backend will handle posts
         visibility,
-        moderators: [], // Backend will handle moderators
+        
       };
 
       // Use API function

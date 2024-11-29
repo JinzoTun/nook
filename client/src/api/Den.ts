@@ -38,7 +38,7 @@ export async function LeaveDen(denId: string, token: string) {
     }
 }
 
-export async function CreateDen(den: Den, token: string) {
+export async function CreateDen(den: Partial<Den>, token: string) {
     try {
         const response = await axios.post(
             `${API}/api/create-den`,
