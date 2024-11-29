@@ -9,6 +9,7 @@ import authRoutes from './routes/authRoutes.js';
 import postRoutes from './routes/postRoutes.js';
 import commentsRoutes from './routes/commentsRoutes.js';
 import denRoutes from './routes/denRoutes.js';
+import votesRoute from './routes/voteRoutes.js';
 
 dotenv.config();
 
@@ -27,6 +28,8 @@ app.use('/api/users', userRoutes);
 app.use('/api/posts', postRoutes);
 app.use('/api/comments', commentsRoutes);
 app.use('/api', denRoutes);
+app.use('/api', votesRoute);
+
 
 // Health Check
 app.get('/api/status', (req, res) => {

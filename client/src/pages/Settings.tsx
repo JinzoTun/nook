@@ -10,16 +10,15 @@ import {
 import { Input } from "@/components/ui/input";
 import Header from "@/components/Header";
 import { useEffect, useState } from "react";
-import { updateUser } from "@/api/User";
+import { updateUser, updateUserAvatar, updateUserBanner } from "@/api/User";
 import { User } from "@/interfaces/interfaces";
+import { Label } from "@/components/ui/label";
 
 export default function Settings() {
-  // todo : set the initial state of the user profile
-  const [avatar, setAvatar] = useState<string>("");
-  const [banner, setBanner] = useState<string>("");
-  const [username, setUsername] = useState<string>(""); // State for username
-  const [bio, setBio] = useState<string>(""); // State for bio
-
+  const [avatar, setAvatar] = useState<File | null>(null); // State to store file (not URL)
+  const [banner, setBanner] = useState<File | null>(null);
+  const [username, setUsername] = useState<string>("");
+  const [bio, setBio] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
   const [token, setToken] = useState<string>("");
   const [message, setMessage] = useState<string>("");
@@ -31,41 +30,62 @@ export default function Settings() {
     }
   }, []);
 
+  // Function to handle file selection (avatar)
+  const handleAvatarSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setAvatar(file); // Save file to state
+    }
+  };
+
+  // Function to handle file selection (banner)
+  const handleBannerSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setBanner(file); // Save file to state
+    }
+  };  
+
   const handleUserUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     try {
       const user: Partial<User> = {};
 
-      if( !avatar && !username && !bio && !banner) {
+      if (!avatar && !username && !bio && !banner) {
         setMessage("Please fill in at least one field.");
         setLoading(false);
         return;
       }
-      if (avatar) {
-        user.avatar = avatar;
-      }
-      if (username) {
-        user.username = username;
-      }
-      if (bio) {
-        user.bio = bio;
-      }
-      if (banner) {
-        user.banner = banner;
-      }
-      await updateUser(token, user);
-      setLoading(false);
-      setMessage("Profile updated successfully !");
-      
 
+      // Prepare user data for update
+      if (username) user.username = username;
+      if (bio) user.bio = bio;
+      if (banner) {
+        const bannerUrl = URL.createObjectURL(banner);
+        user.banner = bannerUrl;
+      }
+
+      // If there's an avatar, save it as file URL or process it before update
+      if (avatar) {
+        // Create a URL for the file using FileReader or a similar method to display it in the frontend
+        const avatarUrl = URL.createObjectURL(avatar); // This URL will represent the file locally
+        user.avatar = avatarUrl; // Save the URL in the user data (it will be handled by the backend)
+      }
+
+      // Update the user profile with the new data (including avatar URL)
+      await updateUser(token, user);
+      await updateUserAvatar(token, avatar!); // Update the avatar separately
+      await updateUserBanner(token, banner!); // Update the banner separately
+
+      setLoading(false);
+      setMessage("Profile updated successfully!");
     } catch (error) {
       console.error("Error updating user:", error);
       setLoading(false);
       setMessage("An error occurred. Please try again.");
     }
-    
-  }
+  };
 
   return (
     <div className="flex min-h-screen w-full flex-col">
@@ -94,23 +114,31 @@ export default function Settings() {
               </CardHeader>
               <CardContent>
                 <form onSubmit={handleUserUpdate}>
-                  {/* Input for avatar */}
-                  <Input
-                    type="text"
-                    value={avatar}
-                    onChange={(e) => setAvatar(e.target.value)}
-                    placeholder="Avatar URL"
-                    className="mb-4"
-                  />
+                  {/* Avatar File Input */}
+                  <div className="mb-4">
+                    <Label htmlFor="avatar">Avatar</Label>
+                    <Input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleAvatarSelect} // Handle avatar selection
+                      className="block w-full"
+                    />
+                    {avatar && (
+                      <div className="mt-2">
+                        <p>Selected Avatar: {avatar.name}</p>
+                      </div>
+                    )}
+                  </div>
                   {/* Input for banner */}
+                  <Label htmlFor="banner">Banner</Label>
                   <Input
-                    type="text"
-                    value={banner}
-                    onChange={(e) => setBanner(e.target.value)}
-                    placeholder="Banner URL"
+                    type="file"
+                    accept="image/*"
+                    onChange={handleBannerSelect} // Handle banner selection
                     className="mb-4"
                   />
                   {/* Input for username */}
+                  <Label htmlFor="username">Username</Label>
                   <Input
                     type="text"
                     value={username}
@@ -119,6 +147,7 @@ export default function Settings() {
                     className="mb-4"
                   />
                   {/* Input for bio */}
+                  <Label htmlFor="bio">Bio</Label>
                   <Input
                     type="text"
                     value={bio}
@@ -132,7 +161,6 @@ export default function Settings() {
                   {loading ? "Saving..." : "Save"}
                 </Button>
                 <p className="text-sm text-muted-foreground">{message}</p>
-                
               </CardFooter>
             </Card>
           </div>
