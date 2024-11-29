@@ -96,13 +96,13 @@ export default function Settings() {
         </div>
         <div className="mx-auto grid w-full max-w-6xl items-start gap-6 md:grid-cols-[180px_1fr] lg:grid-cols-[250px_1fr]">
           <nav className="grid gap-4 text-sm text-muted-foreground">
-            <a href="#" className="font-semibold text-primary">
-              General
+            <a href="/settings" className="font-semibold ">
+              Profile
             </a>
-            <a href="#">Security</a>
-            <a href="#">Integrations</a>
-            <a href="#">Support</a>
-            <a href="#">Advanced</a>
+            <a href="/settings/password">Password</a>
+            <a href="/settings/security">Security</a>
+            <a href="/settings/notifications">Notifications</a>
+            
           </nav>
           <div className="grid gap-6">
             <Card>
@@ -115,7 +115,6 @@ export default function Settings() {
               <CardContent>
                 <form onSubmit={handleUserUpdate}>
                   {/* Avatar File Input */}
-                  <div className="mb-4">
                     <Label htmlFor="avatar">Avatar</Label>
                     <Input
                       type="file"
@@ -123,12 +122,8 @@ export default function Settings() {
                       onChange={handleAvatarSelect} // Handle avatar selection
                       className="block w-full"
                     />
-                    {avatar && (
-                      <div className="mt-2">
-                        <p>Selected Avatar: {avatar.name}</p>
-                      </div>
-                    )}
-                  </div>
+              
+               
                   {/* Input for banner */}
                   <Label htmlFor="banner">Banner</Label>
                   <Input
