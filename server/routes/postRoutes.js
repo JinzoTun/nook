@@ -1,13 +1,14 @@
 // routes/postRoutes.js
 import express from 'express';
-import { createPost, getAllPosts, getPost, getCommentsCount  } from '../controllers/postController.js';
+import { createPost, getAllPosts, getPost, getCommentsCount, updateVoteCount  } from '../controllers/postController.js';
 import { protectRoute } from '../middlewares/authMiddlware.js'
 
 const router = express.Router();
 
 router.post('/', protectRoute, createPost); // Route to create a post
 router.get('/', getAllPosts); // Route to get all posts
-router.get('/:id', getPost );
+router.get('/:id', getPost ); // Route to get a post by ID
+router.put('/:id/vote', protectRoute, updateVoteCount ); // Route to update vote count
 
 router.get('/commentsCount/:id', getCommentsCount );
 
