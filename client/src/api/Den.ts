@@ -9,7 +9,7 @@ export async function JoinDen(denId: string, token: string) {
             {},
             {
                 headers: {
-                    token
+                    token : token
                 }
             }
         );
@@ -27,7 +27,7 @@ export async function LeaveDen(denId: string, token: string) {
             {},
             {
                 headers: {
-                    token
+                    token : token
                 }
             }
         );
@@ -38,23 +38,35 @@ export async function LeaveDen(denId: string, token: string) {
     }
 }
 
-export async function CreateDen(den: Partial<Den>, token: string) {
+
+export async function CreateDen(den: Partial<Den>, token: string, avatar?: File, banner?: File) {
     try {
-        const response = await axios.post(
-            `${API}/api/create-den`,
-            den,
-            {
-                headers: {
-                    token
-                }
+        const formData = new FormData();
+        formData.append("name", den.name || "");
+        formData.append("description", den.description || "");
+        formData.append("categories",  den.categories || "");
+        formData.append("visibility", den.visibility || "");
+        if (avatar) {
+            formData.append("avatar", avatar);
+        }
+        if (banner) {
+            formData.append("banner", banner);
+        }
+
+        const response = await axios.post(`${API}/api/create-den`, formData, {
+            headers: {
+                token: token,
+                "Content-Type": "multipart/form-data"
             }
-        );
-        return response.data; // Return response data for further handling
+        });
+        return response.data;
     } catch (error) {
         console.error("Error creating den:", error);
-        throw error; // Rethrow error for the caller to handle
+        throw error;
     }
 }
+
+
 
 export async function getDens() {
     try {

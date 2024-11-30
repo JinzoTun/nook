@@ -38,6 +38,9 @@ export interface Den {
     posts: Post[];
     visibility: string;
     createdBy: User;
+    rules: string;
+    flair: string;
+    tags: string;
   }
 
 export interface Comment {

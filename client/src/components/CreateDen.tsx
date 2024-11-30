@@ -2,29 +2,20 @@ import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Card } from './ui/card';
 import { useState } from 'react';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-
-//todo : add rules for den creation
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { CreateDen as CreateDenAPI } from '@/api/Den';
 import { Den } from '@/interfaces/interfaces';
 
 export default function CreateDen() {
   const [name, setName] = useState<string>('');
   const [description, setDescription] = useState<string>('');
-  const [avatar, setAvatar] = useState<string | undefined>();
-  const [banner, setBanner] = useState<string | undefined>();
+  const [avatar, setAvatar] = useState<File | undefined>();
+  const [banner, setBanner] = useState<File | undefined>();
   const [categories, setCategories] = useState<string>('');
   const [visibility, setVisibility] = useState<string>('public');
   const [message, setMessage] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(false);
 
-  // todo : change how the form is submitted new den 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -37,21 +28,34 @@ export default function CreateDen() {
     }
 
     try {
+
+      const den: Partial<Den> = {};
       // Convert categories string to array
-      const categoriesArray = categories.split(',').map((cat) => cat.trim());
+     
 
-      const newDen : Partial<Den> = {
-        name,
-        description,
-        categories: categoriesArray.join(','),
-        avatar,
-        banner,
-        visibility,
-        
-      };
+      if (banner) {
+        const bannerUrl = URL.createObjectURL(banner);
+        den.banner = bannerUrl;
+      }
 
-      // Use API function
-      await CreateDenAPI(newDen, token);
+      // If there's an avatar, save it as file URL or process it before update
+      if (avatar) {
+        // Create a URL for the file using FileReader or a similar method to display it in the frontend
+        const avatarUrl = URL.createObjectURL(avatar); // This URL will represent the file locally
+        den.avatar = avatarUrl; // Save the URL in the user data (it will be handled by the backend)
+      }
+
+      // Prepare den data 
+      den.name = name;
+      den.description = description;
+      den.categories = categories;
+      den.visibility = visibility;
+
+      
+
+
+      // Use API function to create den
+      await CreateDenAPI(den, token, avatar, banner);
 
       setMessage('Den created successfully!');
       resetForm();
@@ -95,20 +99,20 @@ export default function CreateDen() {
             required
           />
 
-          {/* Avatar */}
+          {/* Avatar File Input */}
           <Input
-            type="text"
-            value={avatar || ''}
-            onChange={(e) => setAvatar(e.target.value)}
-            placeholder="Avatar URL"
+            type="file"
+            accept="image/*"
+            onChange={(e) => e.target.files && setAvatar(e.target.files[0])}
+            placeholder="Avatar"
           />
 
-          {/* Banner */}
+          {/* Banner File Input */}
           <Input
-            type="text"
-            value={banner || ''}
-            onChange={(e) => setBanner(e.target.value)}
-            placeholder="Banner URL"
+            type="file"
+            accept="image/*"
+            onChange={(e) => e.target.files && setBanner(e.target.files[0])}
+            placeholder="Banner"
           />
 
           {/* Categories */}
@@ -140,9 +144,7 @@ export default function CreateDen() {
           {/* Message */}
           {message && (
             <p
-              className={`text-center mt-2 ${
-                message.includes("success") ? "text-green-500" : "text-red-500"
-              }`}
+              className={`text-center mt-2 ${message.includes("success") ? "text-green-500" : "text-red-500"}`}
             >
               {message}
             </p>

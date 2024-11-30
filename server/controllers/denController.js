@@ -59,6 +59,7 @@ export const createDen = async (req, res) => {
     user.joinedDens.addToSet(savedDen._id); // Use `addToSet` to avoid duplicates
     den.members.addToSet(createdBy); // Use `addToSet` to avoid duplicates
     await user.save();
+    await den.save();
 
     res.status(201).json(savedDen);
   } catch (error) {
