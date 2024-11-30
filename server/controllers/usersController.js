@@ -21,7 +21,7 @@ export const updateUserProfile = async (req, res) => {
         // Upload avatar if provided
         if (req.files?.avatar) {
             const avatarUpload = await cloudinary.uploader.upload(req.files.avatar[0].path, {
-                folder: 'nook/avatars',
+                folder: 'nook/user/avatars',
                 public_id: `avatar_${user._id}`,
                 overwrite: true,
             });
@@ -31,7 +31,7 @@ export const updateUserProfile = async (req, res) => {
         // Upload banner if provided
         if (req.files?.banner) {
             const bannerUpload = await cloudinary.uploader.upload(req.files.banner[0].path, {
-                folder: 'nook/banners',
+                folder: 'nook/user/banners',
                 public_id: `banner_${user._id}`,
                 overwrite: true,
             });
