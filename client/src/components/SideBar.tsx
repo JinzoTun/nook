@@ -4,7 +4,6 @@ import { Separator } from "@/components/ui/separator";
 import { HomeIcon } from "@radix-ui/react-icons";
 import { AlignLeft, Search, TrendingUp } from "lucide-react";
 import Footer from "./Footer";
-import { GiMountainCave   } from "react-icons/gi"; // Game Icons
 import { HiPlus } from "react-icons/hi2";
 import { useEffect, useState } from "react";
 import {getJoinedDens} from "@/api/User";
@@ -34,15 +33,15 @@ function SideBar() {
       style={{ height: "calc(100vh - 64px)" }}
     >
       <div className="flex flex-col gap-3 m-2 text-lg  ">
-        <a href="/" className="flex gap-4 justify-start  items-center">
+        <a href="/following" className="flex gap-4 justify-start  items-center">
         <HomeIcon width={23} height={25}></HomeIcon>
            <p  className=" flex gap-4 "> Home</p>
         </a>
-        <a href="/" className="flex gap-4 justify-start  items-center">
+        <a href="/popular" className="flex gap-4 justify-start  items-center">
         <TrendingUp width={25} height={25}></TrendingUp>
            <p  className=" flex gap-4 "> Popular</p>
         </a>
-        <a href="/" className="flex gap-4 justify-start  items-center">
+        <a href="/dens" className="flex gap-4 justify-start  items-center">
         <Search width={23} height={23}></Search>
            <p  className=" flex gap-4 "> Explore</p>
         </a>
@@ -51,13 +50,6 @@ function SideBar() {
            <p  className=" flex gap-4 "> All</p>
         </a>
 
-   
-        <Separator />
-
-        <a href="/dens" className="flex gap-3 justify-start  items-center">
-        <GiMountainCave  size={27}></GiMountainCave>
-           <p  className="  "> Dens</p>
-        </a>
 
         <Separator />
 

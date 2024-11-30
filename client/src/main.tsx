@@ -17,9 +17,11 @@ import CreatePost from './components/CreatePost';
 import CreateDen from './components/CreateDen';
 import Post from "@/components/Post";
 import Profile from '@/components/Profile';
-import PostList from './components/PostList';
+import PostList from './components/AllPosts';
 import AllDens from './components/AllDens';
 import Den from './components/Den';
+import Following from './components/Following';
+import Popular from './components/Popular';
 
 
 const router = createBrowserRouter([
@@ -67,6 +69,14 @@ const router = createBrowserRouter([
     path: "/terms",
     element: <TermsOfService />,
   },
+  {
+    path: "/following",
+    element: <Home><Following/></Home>
+  },
+  { 
+    path: "/popular",
+    element: <Home><Popular/></Home>
+  }
 
 ]);
 

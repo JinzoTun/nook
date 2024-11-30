@@ -41,3 +41,30 @@ export const fetchPostById = async (id: string): Promise<Post> => {
     throw new Error("Failed to fetch post");
   }
 };
+
+
+// fetch posts from followed users
+export const fetchFollowingPosts = async (token: string): Promise<Post[]> => {
+  try {
+    const response = await axios.get(`${API}/api/posts/p/following`, {
+      headers: {
+        token: token,
+      },
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching  posts:", error);
+    throw new Error("Failed to fetch posts");
+  }
+};
+
+// fetch posts sorted by most liked
+export const fetchPopularPosts = async (): Promise<Post[]> => {
+  try {
+    const response = await axios.get(`${API}/api/posts/p/votes`);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching  posts:", error);
+    throw new Error("Failed to fetch posts");
+  }
+};
