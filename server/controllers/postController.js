@@ -195,3 +195,23 @@ export const getFollowingPosts = async (req, res) => {
     res.status(500).json({ message: 'Error fetching feed' });
   }
 }
+
+
+// get posts sorted by top votes
+
+export const getPostsByVotes = async (req, res) => {
+  try {
+    const posts = await Post.find()
+      .populate('author', '_id username avatar email') // Populate author details
+      .populate('location', '_id name') // Populate location details (Den or User)
+      .populate({ path: 'comments', populate: { path: 'author', select: '_id username avatar' } }) // Populate comments 
+      .sort({ votes: -1 }); // Sort by votes in descending order
+
+    res.status(200).json(posts);
+  }
+  catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Error fetching posts' });
+  }
+
+}
