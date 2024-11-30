@@ -9,7 +9,7 @@ import {
     getDenById,
     getAllDens,
     deleteDen,
-} from '../controllers/DenController.js';
+} from '../controllers/denController.js';
 
 const router = express.Router();
 
