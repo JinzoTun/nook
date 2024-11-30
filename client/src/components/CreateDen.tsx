@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { CreateDen as CreateDenAPI } from '@/api/Den';
 import { Den } from '@/interfaces/interfaces';
+import { Label } from './ui/label';
 
 export default function CreateDen() {
   const [name, setName] = useState<string>('');
@@ -82,6 +83,7 @@ export default function CreateDen() {
         <h1 className="text-3xl font-semibold p-2 mb-4 flex">Create Den</h1>
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           {/* Name */}
+          <Label>Name</Label>
           <Input
             type="text"
             value={name}
@@ -91,6 +93,7 @@ export default function CreateDen() {
           />
 
           {/* Description */}
+          <Label>Description</Label>
           <Input
             type="text"
             value={description}
@@ -100,6 +103,7 @@ export default function CreateDen() {
           />
 
           {/* Avatar File Input */}
+          <Label>Avatar</Label>
           <Input
             type="file"
             accept="image/*"
@@ -108,6 +112,7 @@ export default function CreateDen() {
           />
 
           {/* Banner File Input */}
+          <Label>Banner</Label>
           <Input
             type="file"
             accept="image/*"
@@ -116,6 +121,7 @@ export default function CreateDen() {
           />
 
           {/* Categories */}
+          <Label>Categories</Label>
           <Input
             type="text"
             value={categories}
@@ -125,6 +131,7 @@ export default function CreateDen() {
           />
 
           {/* Visibility */}
+          <Label>Visibility</Label>
           <Select onValueChange={(value) => setVisibility(value)}>
             <SelectTrigger>
               <SelectValue placeholder="Select Visibility" />

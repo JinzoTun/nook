@@ -2,6 +2,8 @@ import Post from '../models/Post.js';
 import User from '../models/user.js';
 import Den from '../models/Den.js';
 
+import mongoose from 'mongoose';
+
 // Create a new post
 export const createPost = async (req, res) => {
   const { title, body, denId, image, video } = req.body; // Added `image` and `video`
@@ -168,3 +170,28 @@ export const getCommentsCount = async (req, res) => {
     });
   }
 };
+
+
+// Get posts from followed users 
+export const getFollowingPosts = async (req, res) => {
+  try {
+    // Get the logged-in user's ID
+    const userId = req.user; // From JWT token (authMiddleware should set this)
+    
+    // Find the user and populate the 'following' field with the list of users they're following
+    const user = await User.findById(userId).populate('following');
+    
+    // Get an array of user IDs that the logged-in user is following
+    const followingIds = user.following.map(followingUser => new mongoose.Types.ObjectId(followingUser._id)); // Correct usage with `new`
+
+    // Fetch posts from users they are following (use 'author' instead of 'user')
+    const posts = await Post.find({ author: { $in: followingIds } }) // Corrected field name
+      .populate('author', 'username') // Optionally, populate the username from the 'author' field
+      .sort({ createdAt: -1 }); // Sort posts by creation date (newest first)
+
+    res.status(200).json(posts); // Return the posts
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Error fetching feed' });
+  }
+}

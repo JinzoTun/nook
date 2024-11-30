@@ -8,6 +8,8 @@ import {
     deleteUser,
     getAllUsers,
     getJoinedDens,
+    followUser,
+    unfollowUser,
 } from '../controllers/usersController.js';
 
 const router = express.Router();
@@ -36,5 +38,13 @@ router.get('/dens', protectRoute, getJoinedDens);
 
 // Get user by ID
 router.get('/profile/:id', getUserById);
+
+// Follow a user
+router.put('/follow/:id', protectRoute, followUser);
+
+// Unfollow a user
+router.put('/unfollow/:id', protectRoute, unfollowUser);
+
+
 
 export default router;

@@ -125,3 +125,56 @@ export const getJoinedDens = async (req, res) => {
         res.status(500).json({ message: 'Server error' });
     }
 };
+
+
+// follow a user    
+export const followUser = async (req, res) => {
+    try {
+        const user = await User.findById(req.params.id);
+        const currentUser = await User.findById(req.user); // Get current user
+
+        if (!user) { 
+
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        if (user.followers.includes(req.user)) {
+            return res.status(400).json({ message: 'You are already following this user' });
+        }
+
+        await user.updateOne({ $push: { followers: req.user } }); // Add follower
+        await currentUser.updateOne({ $push: { following: req.params.id } }); // Add following
+
+        res.json({ message: 'User followed successfully' });
+
+    } catch (error) {
+        res.status(500).json({ message: 'Server error' });
+    }
+
+}
+
+// unfollow a user
+
+export const unfollowUser = async (req, res) => {
+    try {
+        const user = await User.findById(req.params.id);
+        const currentUser = await User.findById(req.user); // Get current user
+
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        if (!user.followers.includes(req.user)) {
+            return res.status(400).json({ message: 'You are not following this user' });
+        }
+
+        await user.updateOne({ $pull: { followers: req.user } }); // Remove follower
+        await currentUser.updateOne({ $pull: { following: req.params.id } }); // Remove following
+
+        res.json({ message: 'User unfollowed successfully' });
+
+    } catch (error) {
+        res.status(500).json({ message: 'Server error' });
+    }
+
+}
