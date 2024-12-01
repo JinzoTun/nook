@@ -139,7 +139,7 @@ export const followUser = async (req, res) => {
         }
 
         if (user.followers.includes(req.user)) {
-            return res.status(400).json({ message: 'You are already following this user' });
+            return res.status(200).json({ message: 'You are already following this user' });
         }
 
         await user.updateOne({ $push: { followers: req.user } }); // Add follower
@@ -165,7 +165,7 @@ export const unfollowUser = async (req, res) => {
         }
 
         if (!user.followers.includes(req.user)) {
-            return res.status(400).json({ message: 'You are not following this user' });
+            return res.status(200).json({ message: 'You are not following this user' });
         }
 
         await user.updateOne({ $pull: { followers: req.user } }); // Remove follower

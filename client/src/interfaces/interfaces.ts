@@ -23,6 +23,8 @@ export interface User {
     joinedDens: Den[];
     posts: Post[];
     comments: Comment[];
+    following: string[];
+    followers: string[];
   }
 
 

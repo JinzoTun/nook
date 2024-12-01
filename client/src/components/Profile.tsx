@@ -2,8 +2,9 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { PostCard } from './PostCard';
 import { Post, User } from '../interfaces/interfaces';
-import { fetchUserById } from '../api/User';
+import { fetchUser, fetchUserById } from '../api/User';
 import { Loading } from './ui/Loading';
+import  FollowButton  from './FollowButton';
 
 function Profile() {
   const [avatar, setAvatar] = useState<string>('');
@@ -15,9 +16,21 @@ function Profile() {
   const [loading, setLoading] = useState<boolean>(true);
   const { id } = useParams<{ id: string }>();
 
+  const [currentUser, setCurrentUser] = useState<string | null>(null);
+  const targetUserId = id;
+
   useEffect(() => {
     const loadProfile = async () => {
       const token = localStorage.getItem('token');
+      try {
+        const currentUser = await fetchUser(token!);
+        setCurrentUser(currentUser._id);
+      } catch (err) {
+        console.error('Error fetching current user:', err
+        );
+      }
+      console.log(currentUser);
+      console.log(targetUserId);
       if (!token) {
         setError('User is not authenticated.');
         setLoading(false);
@@ -44,7 +57,7 @@ function Profile() {
     };
 
     loadProfile();
-  }, [id]);
+  }, [currentUser, targetUserId]);
 
   if (loading) {
     return <Loading />;
@@ -65,6 +78,7 @@ function Profile() {
               backgroundPosition: 'center',
             }}
           >
+            
             {/* Avatar */}
             <div className="absolute bottom-[-50px] left-8">
               <img
@@ -74,12 +88,26 @@ function Profile() {
               />
             </div>
           </div>
+          
 
           {/* User Info */}
           <div className="mt-16 px-8">
             <h1 className="text-2xl font-bold">u/{username}</h1>
             <p className="text-gray-500 mt-2">{bio}</p>
           </div>
+          {/* Follow Button */}
+          <div className="mt-4 px-8">
+                        
+          {currentUser && currentUser !== targetUserId && (
+              <FollowButton 
+                  targetUserId={targetUserId!} 
+                  currentUsertoken={localStorage.getItem("token")!} 
+              />
+          )}
+          </div>
+
+
+
 
           {/* Posts */}
           <div className="mt-6 ">
