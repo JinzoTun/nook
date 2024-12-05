@@ -115,18 +115,25 @@ export function PostCard({ post }: PostCardProps) {
     .catch((error) => console.error("Error fetching comments count:", error));
   }
   , [post._id]);
-
-  
-
   return (
     <Card className="w-full mt-4">
       <CardHeader className="flex">
-        <a href={`/u/${post.author._id}`} className="flex justify-start items-center gap-2 w-4/5">
-          <Avatar className="w-8 h-8" >
+
+        { post.locationType === "Den" ? 
+          <a href={`/d/${post.location._id}`} className="flex justify-start items-center gap-2 w-4/5 hover:underline">
+            d/{post.location.name} </a>
+          : 
+          <></>
+        }
+
+
+        <a href={`/u/${post.author._id}`} className="flex justify-start items-center gap-2 w-4/5 ">
+
+          <Avatar className="w-8 h-8 " >
             <AvatarImage src={post.author.avatar || "https://placeholder.com/300x300"} alt="avatar" />
             <AvatarFallback>{post.author.username.charAt(0)}</AvatarFallback>
           </Avatar>
-          <p className="text-sm font-medium">u/{post.author.username} <span className="m-1 opacity-50 text-xs">{formatDate(post.createdAt)}</span></p>
+          <p className="text-sm font-medium ">u/{post.author.username} </p><span className="m-1 opacity-50 text-xs font-semibold">{formatDate(post.createdAt)}</span>
         </a>
         <CardDescription>{post.title}</CardDescription>
       </CardHeader>

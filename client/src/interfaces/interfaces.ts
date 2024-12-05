@@ -8,10 +8,15 @@ export interface Post {
     votes: number;  
     createdAt: string;
     comments: Comment[];
-    location : string;
-    locationType: [Den, User];
+    location : location;
+    locationType: string;
     
   }
+
+export interface location {
+  _id: string;
+  name: string;
+}
 
 export interface User {
     _id: string;
@@ -23,7 +28,7 @@ export interface User {
     joinedDens: Den[];
     posts: Post[];
     comments: Comment[];
-    following: string[];
+    following: User[] 
     followers: string[];
   }
 

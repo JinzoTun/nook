@@ -56,6 +56,8 @@ export const getUserProfile = async (req, res) => {
                 path: 'posts',  // Populate posts
                 populate: { path: 'author', select: 'username avatar' }  // Populate author with only username and avatar
             })
+            .populate('followers', '_id username avatar') // Populate followers with only username and avatar
+            .populate('following', '_id username avatar') // Populate following with only username and avatar
             .select('-password'); // Exclude password
 
         if (!user) {
@@ -153,8 +155,7 @@ export const followUser = async (req, res) => {
 
 }
 
-// unfollow a user
-
+// unfollow a user 
 export const unfollowUser = async (req, res) => {
     try {
         const user = await User.findById(req.params.id);

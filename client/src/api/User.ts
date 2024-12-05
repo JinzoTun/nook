@@ -26,7 +26,7 @@ export async function getJoinedDens ( token: string ) {
 export async function fetchUser( token: string): Promise<User> {
   try {
     const response = await axios.get(`${API}/api/users/profile`, {
-      headers: { token },
+      headers: { token : token },
     });
     return response.data;
   } catch (error) {

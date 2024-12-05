@@ -6,13 +6,15 @@ import { AlignLeft, Search, TrendingUp } from "lucide-react";
 import Footer from "./Footer";
 import { HiPlus } from "react-icons/hi2";
 import { useEffect, useState } from "react";
-import {getJoinedDens} from "@/api/User";
-import { Den } from "@/interfaces/interfaces";
+import {getJoinedDens , fetchUser} from "@/api/User";
+import { Den, User } from "@/interfaces/interfaces";
 import { RiFileList3Line } from "react-icons/ri";
+
 
 function SideBar() {
 
    const [joinedDens, setJoinedDens] = useState<Den[]>([]);
+   const [user, setUser] = useState<User>();
 
    useEffect(() => {
     const token = localStorage.getItem('token');
@@ -25,6 +27,20 @@ function SideBar() {
     }
 }
 , []);
+
+useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+        fetchUser(token).then((user) => {
+            setUser(user);
+        }).catch((error) => {
+            console.error("Error getting user:", error);
+        });
+    }
+}
+, []);
+
+
 
 
   return (
@@ -53,7 +69,7 @@ function SideBar() {
 
         <Separator />
 
-        <h6 className=" text-base font-light opacity-70">DENS</h6>
+        <h6 className=" text-base font-light opacity-70">Dens</h6>
         <a href="/d/create" className="flex gap-2 justify-start items-center ">
         <HiPlus size={26} ></HiPlus>
            <p  className=" "> Create a den</p>
@@ -71,7 +87,29 @@ function SideBar() {
                 <p  className=" font-normal"> d/{den.name}</p>
                </a>
             ))}
+
+            
+         {/* map throw following users */}
          <Separator />
+         <h6 className=" text-base font-light opacity-70">Following</h6>
+         {user?.following.map((following) => (
+               <a href={`/u/${following._id}`} key={following.username} className="flex gap-4 justify-start items-center ">
+               <img
+               src={following.avatar || 'https://via.placeholder.com/80'}
+               alt={following.username}
+               className="w-8 h-8 object-cover rounded-full  border-2 "
+               />
+                <p  className=" font-normal"> u/{following.username}</p>
+               </a>
+            ))}
+
+
+            
+
+
+         <Separator />
+
+            
          <a href="/terms" className="flex gap-4 justify-start  items-center">
          <RiFileList3Line width={25} height={25}></RiFileList3Line>
             <p  className=" flex gap-4 "> Terms of Service</p>
