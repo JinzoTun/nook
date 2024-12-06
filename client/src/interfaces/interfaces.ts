@@ -71,3 +71,14 @@ export interface newUser {
   email: string;
   password: string;
 }
+
+export interface Notification {
+  _id: string;
+  userId: string;
+  postId: string;
+  type: string;
+  read: boolean;
+  createdAt: string;
+  sender: User;
+  receiver: User;
+}

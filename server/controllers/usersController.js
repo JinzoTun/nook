@@ -1,5 +1,7 @@
 import cloudinary from '../config/cloudinary.js';
 import User from '../models/user.js';
+import Notification from '../models/Notification.js';
+import mongoose from 'mongoose';
 
 // Update user profile (protected route)
 export const updateUserProfile = async (req, res) => {
@@ -129,31 +131,61 @@ export const getJoinedDens = async (req, res) => {
 };
 
 
-// follow a user    
+
 export const followUser = async (req, res) => {
+    const session = await mongoose.startSession();
+    session.startTransaction();
+
     try {
-        const user = await User.findById(req.params.id);
-        const currentUser = await User.findById(req.user); // Get current user
+        const userIdToFollow = req.params.id;
+        const currentUserId = req.user; // Assuming `req.user` contains authenticated user's ID
 
-        if (!user) { 
+        // Fetch both users
+        const userToFollow = await User.findById(userIdToFollow).session(session);
+        const currentUser = await User.findById(currentUserId).session(session);
 
+        if (!userToFollow) {
             return res.status(404).json({ message: 'User not found' });
         }
 
-        if (user.followers.includes(req.user)) {
+        if (userToFollow.followers.includes(currentUserId)) {
             return res.status(200).json({ message: 'You are already following this user' });
         }
 
-        await user.updateOne({ $push: { followers: req.user } }); // Add follower
-        await currentUser.updateOne({ $push: { following: req.params.id } }); // Add following
+        // Add follower and following
+        userToFollow.followers.push(currentUserId);
+        currentUser.following.push(userIdToFollow);
 
+        // Create and save notification
+        const notification = new Notification({
+            user: userIdToFollow,
+            type: 'follow',
+            sender: currentUserId,
+            receiver: userIdToFollow,
+            text: `${currentUser.username} followed you`,
+            link: `/profile/${currentUser._id}`,
+            avatar: currentUser.avatar,
+        });
+
+        await notification.save({ session });
+        userToFollow.notifications.push(notification._id);
+
+        // Save changes to both users
+        await userToFollow.save({ session });
+        await currentUser.save({ session });
+
+        await session.commitTransaction();
         res.json({ message: 'User followed successfully' });
 
     } catch (error) {
+        await session.abortTransaction();
+        console.error('Error following user:', error);
         res.status(500).json({ message: 'Server error' });
+    } finally {
+        session.endSession();
     }
+};
 
-}
 
 // unfollow a user 
 export const unfollowUser = async (req, res) => {
@@ -179,3 +211,21 @@ export const unfollowUser = async (req, res) => {
     }
 
 }
+// Get user notifications
+export const getUserNotifications = async (req, res) => {
+    try {
+        const user = await User.findById(req.user).populate({
+            path: 'notifications',
+            populate: { path: 'sender', select: 'username avatar' } // Populate sender's details
+        });
+
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        res.json(user.notifications); // Send full notifications with sender details
+    } catch (error) {
+        console.error('Error fetching notifications:', error); // Log the error for debugging
+        res.status(500).json({ message: 'Server error' });
+    }
+};

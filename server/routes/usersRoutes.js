@@ -10,6 +10,7 @@ import {
     getJoinedDens,
     followUser,
     unfollowUser,
+    getUserNotifications
 } from '../controllers/usersController.js';
 
 const router = express.Router();
@@ -44,6 +45,9 @@ router.put('/follow/:id', protectRoute, followUser);
 
 // Unfollow a user
 router.put('/unfollow/:id', protectRoute, unfollowUser);
+
+// user notifcations
+router.get('/notifications', protectRoute, getUserNotifications);
 
 
 
