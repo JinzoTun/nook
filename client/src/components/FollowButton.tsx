@@ -1,13 +1,14 @@
 import { useState, useEffect } from "react";
 import { Button } from "./ui/button";
 import { fetchUserById, followUser, unfollowUser } from "@/api/User";
+import { User } from "@/interfaces/interfaces";
 
 const FollowButton = ({
   targetUserId,
   currentUserId,
   currentUserToken,
 }: {
-  targetUserId: string;
+  targetUserId: User;
   currentUserId: string;
   currentUserToken: string;
 }) => {
@@ -31,9 +32,9 @@ const FollowButton = ({
     setLoading(true);
     try {
       if (isFollowing) {
-        await unfollowUser(targetUserId, currentUserToken);
+        await unfollowUser(targetUserId._id, currentUserToken);
       } else {
-        await followUser(targetUserId, currentUserToken);
+        await followUser(targetUserId._id, currentUserToken);
       }
       setIsFollowing(!isFollowing); // Toggle follow status
     } catch (err) {
