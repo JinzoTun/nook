@@ -18,12 +18,18 @@ const postSchema = new mongoose.Schema(
         validator: function (v) {
           return v === null || /^https?:\/\/.+\.(jpg|jpeg|png|gif)$/.test(v);
         },
-        message: 'Invalid image URL',
+        message: 'Invalid image',
       },
     },
     video: {
       type: String,
       default: null,
+      validate: {
+        validator: function (v) {
+          return v === null || /^https?:\/\/.+\.(mp4|ogg|webm)$/.test(v);
+        },
+        message: 'Invalid video',
+      },
       
     },
     author: {

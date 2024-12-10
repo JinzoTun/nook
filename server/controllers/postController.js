@@ -39,6 +39,8 @@ export const createPost = async (req, res) => {
         folder: 'nook/posts/videos',
         public_id: `video_${Date.now()}`,
         overwrite: true,
+        resource_type: 'video', // Specify video upload
+
       });
       video = videoUpload.secure_url; // Store the Cloudinary URL
     }
