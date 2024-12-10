@@ -1,12 +1,13 @@
 import Post from '../models/Post.js';
 import User from '../models/user.js';
 import Den from '../models/Den.js';
+import cloudinary from '../config/cloudinary.js'; // Cloudinary config
 
 import mongoose from 'mongoose';
 
 // Create a new post
 export const createPost = async (req, res) => {
-  const { title, body, denId, image, video } = req.body; // Added `image` and `video`
+  const { title, body, denId  } = req.body; // Added `image` and `video`
   const userId = req.user; // User ID from the decoded token
 
   if (!title || !body) {
@@ -17,6 +18,31 @@ export const createPost = async (req, res) => {
     // Determine the location and locationType based on the denId
     const location = denId && denId !== 'profile' ? denId : userId;
     const locationType = denId && denId !== 'profile' ? 'Den' : 'User';
+
+    // upload image to cloudinary if provided
+    let image = null;
+
+    if (req.files?.image) {
+      const imageUpload = await cloudinary.uploader.upload(req.files.image[0].path, {
+        folder: 'nook/posts/images',
+        public_id: `image_${Date.now()}`,
+        overwrite: true,
+      });
+      image = imageUpload.secure_url; // Store the Cloudinary URL
+    }
+
+    // upload video to cloudinary if provided
+    let video = null;
+
+    if (req.files?.video) {
+      const videoUpload = await cloudinary.uploader.upload(req.files.video[0].path, {
+        folder: 'nook/posts/videos',
+        public_id: `video_${Date.now()}`,
+        overwrite: true,
+      });
+      video = videoUpload.secure_url; // Store the Cloudinary URL
+    }
+
 
     // Create the post
     const post = await Post.create({
@@ -198,7 +224,6 @@ export const getFollowingPosts = async (req, res) => {
 
 
 // get posts sorted by top votes
-
 export const getPostsByVotes = async (req, res) => {
   try {
     const posts = await Post.find()

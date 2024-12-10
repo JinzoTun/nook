@@ -3,22 +3,19 @@ import {API} from "../config/server";
 import { Post } from "../interfaces/interfaces";
 
 // Create a new post
-export const createPost = async (title: string, body: string, image : string , video : string ,denId: string, token: string): Promise<void> => {
+export const createPost = async (token: string, post: FormData): Promise<Post> => {
   try {
-    await axios.post(
-      `${API}/api/posts`,
-      { title, body, denId , image , video },
-      {
-        headers: {
-          token: token,
-        },
-      }
-    );
+    const response = await axios.post(`${API}/api/posts`, post, {
+      headers: {
+        token: token,
+      },
+    });
+    return response.data;
   } catch (error) {
     console.error("Error creating post:", error);
     throw new Error("Failed to create post");
   }
-};
+}
 
 // Fetch all posts from the server
 export const fetchAllPosts = async (pageNumber: number, limit: number = 10): Promise<Post[]> => {

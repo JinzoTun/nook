@@ -23,6 +23,11 @@ import Den from './components/Den';
 import Following from './components/Following';
 import Popular from './components/Popular';
 
+import Chat from './pages/Chat';
+
+import { UserProvider } from "@/context/UserContext";
+
+
 
 const router = createBrowserRouter([
   {
@@ -76,6 +81,10 @@ const router = createBrowserRouter([
   { 
     path: "/popular",
     element: <Home><Popular/></Home>
+  },
+  {
+    path: "/chat",
+    element: <Home><Chat/></Home>
   }
 
 ]);
@@ -83,7 +92,9 @@ const router = createBrowserRouter([
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
         <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
+          <UserProvider>
       <RouterProvider router={router} />
+      </UserProvider>
       </ThemeProvider>
   </StrictMode>,
 )

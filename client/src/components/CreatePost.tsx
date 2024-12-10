@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Label } from './ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Card } from '@/components/ui/card';
 import {getJoinedDens} from '@/api/User'; // API function to fetch joined Dens
+
 import {
   Select,
   SelectItem,
@@ -21,8 +23,8 @@ import { createPost } from '@/api/Post';
 export default function CreatePost() {
   const [title, setTitle] = useState<string>('');
   const [body, setBody] = useState<string>('');
-  const [image, setImage] = useState<string | null>(null);
-  const [video, setVideo] = useState<string | null>(null);
+  const [image, setImage] = useState<File | null>(null);
+  const [video, setVideo] = useState<File | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [joinedDens, setJoinedDens] = useState<Den[]>([]);
   const [selectedDenId, setSelectedDenId] = useState<string>('');
@@ -65,14 +67,23 @@ export default function CreatePost() {
 
     }
 
+    // Create a new FormData object
+    const post = new FormData();
+    post.append('title', title);
+    post.append('body', body);
+    post.append('image', image || '');
+    post.append('video', video || '');
+    post.append('denId', selectedDenId);
+
+
 
     try {
-      await createPost(title, body, image || '', video || '', selectedDenId, token); // Call the createPost function
+      await createPost( token,post); // Call the createPost function
 
       setMessage('Post created successfully!');
       setTitle('');
-      setVideo('');
-      setImage('');
+      setVideo(null);
+     setImage(null);
       setBody('');
       setSelectedDenId(''); // Clear the selected Den
     } catch (error) {
@@ -87,6 +98,7 @@ export default function CreatePost() {
     <Card className="p-5">
       <h1 className="text-3xl font-semibold p-2 mb-4 flex">Create Post</h1>
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+        <Label>Title</Label>
         <Input
           type="text"
           value={title}
@@ -95,6 +107,7 @@ export default function CreatePost() {
           className="border p-2"
           required
         />
+        <Label>Body</Label>
         <Textarea
           value={body}
           onChange={(e) => setBody(e.target.value)}
@@ -102,23 +115,27 @@ export default function CreatePost() {
           className="border p-2"
           required
         />
+        <Label>Image</Label>
         <Input
-          type="text"
-          value={image || ''}
-          onChange={(e) => setImage(e.target.value)}
-          placeholder="Image URL"
-          className="border p-2"
+        type='file'
+        accept='image/*'
+        onChange={(e) => e.target.files && setImage(e.target.files[0])}
+        placeholder='Image'
+        className='border p-2'
         />
+        <Label>Video</Label>
         <Input
-          type="text"
-          value={video || ''}
-          onChange={(e) => setVideo(e.target.value)}
-          placeholder="Video URL"
-          className="border p-2"
+        type='file'
+        accept='video/*'
+        onChange={(e) => e.target.files && setVideo(e.target.files[0])}
+        placeholder='Video'
+        className='border p-2'
         />
+
 
 
         {/* Select Dropdown for Joined Dens */}
+        <Label>Den</Label>
         <Select
           value={selectedDenId}
           onValueChange={(value) => setSelectedDenId(value)}

@@ -1,7 +1,6 @@
-import { useState, useEffect } from 'react';
-import axios from 'axios';
-import { Button } from './ui/button';
-import { API } from '../config/server';
+import { useState, useEffect } from "react";
+import { Button } from "./ui/button";
+import { fetchUserById, followUser, unfollowUser } from "@/api/User";
 
 const FollowButton = ({
   targetUserId,
@@ -16,38 +15,29 @@ const FollowButton = ({
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    const fetchCurrentUser = async () => {
+    const checkFollowingStatus = async () => {
       try {
-        // Fetch the current user's data, including the following list
-        const response = await axios.get(`${API}/api/users/profile/${currentUserId}`, {
-          headers: { token: currentUserToken },
-        });
-        const currentUser = response.data;
-
-        // Check if the currentUser is following the targetUserId
+        const currentUser = await fetchUserById(currentUserId);
         setIsFollowing(currentUser.following.includes(targetUserId));
       } catch (err) {
-        console.error('Error fetching current user:', err);
+        console.error("Error fetching current user:", err);
       }
     };
 
-    fetchCurrentUser();
+    checkFollowingStatus();
   }, [currentUserId, targetUserId, currentUserToken]);
 
   const handleFollowToggle = async () => {
     setLoading(true);
     try {
-      const endpoint = isFollowing
-        ? `${API}/api/users/unfollow/${targetUserId}`
-        : `${API}/api/users/follow/${targetUserId}`;
-
-      await axios.put(endpoint, {}, {
-        headers: { token: currentUserToken },
-      });
-
+      if (isFollowing) {
+        await unfollowUser(targetUserId, currentUserToken);
+      } else {
+        await followUser(targetUserId, currentUserToken);
+      }
       setIsFollowing(!isFollowing); // Toggle follow status
     } catch (err) {
-      console.error(`Error ${isFollowing ? 'unfollowing' : 'following'} user:`, err);
+      console.error(`Error ${isFollowing ? "unfollowing" : "following"} user:`, err);
     } finally {
       setLoading(false);
     }
@@ -55,7 +45,7 @@ const FollowButton = ({
 
   return (
     <Button onClick={handleFollowToggle} disabled={loading}>
-      {loading ? 'Loading...' : isFollowing ? 'Unfollow' : 'Follow'}
+      {loading ? "Processing..." : isFollowing ? "Unfollow" : "Follow"}
     </Button>
   );
 };
