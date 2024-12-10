@@ -4,11 +4,16 @@ import { useAuth } from '../hooks/useAuth';
 import { Loading } from './ui/Loading';
 import FollowButton from './FollowButton';
 import { PostCard } from './PostCard';
-
+import { User } from '../interfaces/interfaces';
+//todo : refactor this component and follow button component
 const Profile = () => {
-  const { id: targetUserId } = useParams<{ id: string }>();
+  const targetUser = {} as User;
+
+  const { id: targetUserId } = useParams<{ id:string }>();
   const { user, loading, error } = useFetchUser(targetUserId);
   const { token, currentUserId } = useAuth();
+
+  targetUser._id = targetUserId!;
 
   if (loading) return <Loading />;
   if (error || !user) return <p className="text-red-500">{error || 'User not found.'}</p>;
@@ -46,8 +51,9 @@ const Profile = () => {
 
   {/* Follow Button */}
   {currentUserId && currentUserId !== targetUserId && (
+
       <FollowButton
-      targetUserId={targetUserId!}
+      targetUserId={targetUser}
       currentUserId={currentUserId}
       currentUserToken={token!}
     />
