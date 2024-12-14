@@ -69,6 +69,11 @@ function DenPage() {
     }
   };
 
+  // edit den button
+  const handleEditButton = () => {
+    navigate(`/d/edit/${id}`);
+  };
+
   if (loading) return <p>Loading...</p>;
   if (error) return <p>{error}</p>;
 
@@ -101,9 +106,12 @@ function DenPage() {
           {/* User Info */}
           <div className=" pl-2">
                         {/* Join/Leave Button */}
-          <div className="p-4 flex  self-end justify-end">
+          <div className="p-4 flex  self-end justify-end gap-2">
             <Button onClick={handleJoinOrLeaveDen}>
               {isJoined ? "Leave" : "Join"}
+            </Button>
+            <Button onClick={handleEditButton} variant="secondary">
+              Edit
             </Button>
           </div>
             <div>

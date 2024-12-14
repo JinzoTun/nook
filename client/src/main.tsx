@@ -22,6 +22,7 @@ import AllDens from './components/AllDens';
 import Den from './components/Den';
 import Following from './components/Following';
 import Popular from './components/Popular';
+import DenEdit from './pages/DenEdit';
 
 import Chat from './pages/Chat';
 
@@ -85,6 +86,10 @@ const router = createBrowserRouter([
   {
     path: "/chat",
     element: <Home><Chat/></Home>
+  },
+  {
+    path: "/d/edit/:id",
+    element: <Home><DenEdit></DenEdit></Home>
   }
 
 ]);

@@ -87,3 +87,31 @@ export async function getDenById(id: string) {
         throw error;
     }
 }
+
+// updateDenById function
+export async function updateDenById(id: string, den: Partial<Den>, token: string, avatar?: File, banner?: File) {
+    try {
+        const formData = new FormData();
+        formData.append("name", den.name || "");
+        formData.append("description", den.description || "");
+        formData.append("categories", den.categories || "");
+        formData.append("visibility", den.visibility || "");
+        if (avatar) {
+            formData.append("avatar", avatar);
+        }
+        if (banner) {
+            formData.append("banner", banner);
+        }
+
+        const response = await axios.put(`${API}/api/update-den/${id}`, formData, {
+            headers: {
+                token: token,
+                "Content-Type": "multipart/form-data"
+            }
+        });
+        return response.data;
+    } catch (error) {
+        console.error("Error updating den:", error);
+        throw error;
+    }
+}

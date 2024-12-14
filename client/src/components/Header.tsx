@@ -31,7 +31,7 @@ function Header() {
     } else {
       setIsAuthenticated(false); // If no token, set authenticated to false
     }
-  }, []);
+  }, [user]);
 
   const handleSignIn = () => {
     navigate('/login');

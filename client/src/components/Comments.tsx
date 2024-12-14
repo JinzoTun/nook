@@ -4,6 +4,15 @@ import { Button } from "./ui/button";
 import { Comment } from "@/interfaces/interfaces";
 import { formatDate } from "@/utils/formatDate";
 import { createComment, fetchComments, deleteComment } from "@/api/Comment";
+import { BsThreeDotsVertical } from "react-icons/bs";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 export default function Comments({ postId }: { postId: string }) {
   const [comments, setComments] = useState<Comment[]>([]);
@@ -78,7 +87,9 @@ export default function Comments({ postId }: { postId: string }) {
 
       {comments.length > 0 ? (
         comments.map((comment) => (
-          <div key={comment._id} className="m-4 flex gap-2 items-center">
+          <div key={comment._id} className="m-4 flex gap-2 items-center justify-between">
+        
+        <div className="flex gap-2 items-center">
             <img
               src={comment.author.avatar}
               alt="avatar"
@@ -91,13 +102,25 @@ export default function Comments({ postId }: { postId: string }) {
               </p>
               <p className="text-xs italic">{comment.content}</p>
             </div>
-            <Button
-              className="p-2 flex"
-              variant={"destructive"}
-              onClick={() => handleDeleteComment(comment._id)}
-            >
-              Delete
-            </Button>
+            </div>
+    
+
+            <DropdownMenu>
+              <DropdownMenuTrigger>
+                <BsThreeDotsVertical className="w-5 h-5 cursor-pointer" />
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                <DropdownMenuLabel>Options</DropdownMenuLabel>
+                {comment.author._id === localStorage.getItem("userId") && (
+                  <DropdownMenuItem onClick={() => handleDeleteComment(comment._id)}>
+                    Delete
+                  </DropdownMenuItem>
+                )}
+                <DropdownMenuSeparator />
+                <DropdownMenuItem>Report</DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+
           </div>
         ))
       ) : (

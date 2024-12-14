@@ -4,9 +4,10 @@ import { Label } from "@/components/ui/label"
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {login} from '@/api/Auth';
+import backgroud from '../assets/bg-login.jpg';
+import {fetchUser} from '@/api/User';
 
-
-  
+   
   const Login: React.FC = () => {
 
     const [email, setEmail] = useState<string>('');
@@ -31,6 +32,7 @@ import {login} from '@/api/Auth';
         if (res.token) {
           // Save token to local storage
           localStorage.setItem('token', res.token);
+          localStorage.setItem('userId', (await fetchUser(res.token))._id);
 
         }
         else {
@@ -47,9 +49,28 @@ import {login} from '@/api/Auth';
 
     };
   return (
-    <div className="w-full lg:grid lg:min-h-[600px] lg:grid-cols-2 xl:min-h-[800px]">
+    <div className="w-full lg:grid lg:min-h-screen lg:grid-cols-2 xl:min-h-screen">
       <div className="flex items-center justify-center py-12">
         <div className="mx-auto grid w-[350px] gap-6">
+            {/* go back arrow */}
+            <div className="flex items-center mb-5">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-5 w-5 mr-2 cursor-pointer"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  onClick={() => window.history.back()}
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M10 19l-7-7m0 0l7-7m-7 7h18"
+                  />
+                </svg>
+                <span className="text-lg font-bold">Home</span>
+                </div>
           <div className="grid gap-2 text-center">
             <h1 className="text-3xl font-bold">Login</h1>
             <p className="text-balance text-muted-foreground">
@@ -97,11 +118,11 @@ import {login} from '@/api/Auth';
       </div>
       <div className="hidden bg-muted lg:block">
         <img
-          src="https://placeholder.com/900*900"
+          src={backgroud}
           alt="Image"
           width="1920"
           height="1080"
-          className="h-full w-full object-cover dark:brightness-[0.2] dark:grayscale"
+          className="h-screen w-full object-cover dark:brightness-[0.8] "
         />
       </div>
     </div>

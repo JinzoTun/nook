@@ -1,4 +1,3 @@
-// todo : update this garbage !
 import { useState, useEffect } from "react";
 import { debounce } from 'lodash';
 import axios from "axios";
@@ -10,15 +9,24 @@ import {
   CardFooter,
   CardHeader,
 } from "@/components/ui/card";
+
+import ReactPlayer from 'react-player';
 import { Separator } from "@/components/ui/separator";
-import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { formatDate } from "@/utils/formatDate"; 
-// import Comments from "./Comments";
 import { PiShareFatBold } from "react-icons/pi";
 import { FaRegComment } from "react-icons/fa";
-import { TbArrowBigUp, TbArrowBigDown  } from "react-icons/tb";
+import { TbArrowBigUp, TbArrowBigDown } from "react-icons/tb";
 import { Post } from "@/interfaces/interfaces";
-import {API} from "@/config/server"
+import { API } from "@/config/server";
+import { BsThreeDotsVertical } from "react-icons/bs";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 interface PostCardProps {
   post: Post;
@@ -28,10 +36,8 @@ export function PostCard({ post }: PostCardProps) {
   const [votes, setVotes] = useState(post.votes);
   const [votedType, setVotedType] = useState<'upvote' | 'downvote' | null>(null);
   const [isVoting, setIsVoting] = useState(false);
-  const [CommentsCount, setCommentsCount] = useState<number>();
+  const [commentsCount, setCommentsCount] = useState<number>(0);
 
-    
- // todo : need update cuz it will rerender every time even user is not logged in
   // Fetch all user votes for initial load and store them in session storage
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -41,8 +47,6 @@ export function PostCard({ post }: PostCardProps) {
       })
       .then((response) => {
         const votes = response.data.votes;
-        
-        // Store each vote in sessionStorage
         Object.entries(votes).forEach(([postId, voteType]) => {
           sessionStorage.setItem(`vote_${postId}`, voteType as string);
           if (postId === post._id) setVotedType(voteType as 'upvote' | 'downvote');
@@ -51,8 +55,6 @@ export function PostCard({ post }: PostCardProps) {
       .catch((error) => console.error("Error fetching votes:", error));
     }
   }, [post._id]);
-
-
 
   // Handle voting on the post
   const handleVote = debounce(async (voteType: 'upvote' | 'downvote') => {
@@ -63,12 +65,10 @@ export function PostCard({ post }: PostCardProps) {
     let updatedVotes = votes;
 
     if (votedType === voteType) {
-      // Undo vote
       updatedVotes = voteType === 'upvote' ? votes - 1 : votes + 1;
       setVotedType(null);
       sessionStorage.removeItem(`vote_${post._id}`);
     } else {
-      // User is voting or changing their vote
       if (votedType === 'upvote') updatedVotes = votes - 1;
       if (votedType === 'downvote') updatedVotes = votes + 1;
       updatedVotes = voteType === 'upvote' ? updatedVotes + 1 : updatedVotes - 1;
@@ -89,14 +89,12 @@ export function PostCard({ post }: PostCardProps) {
 
       if (!response.data.success) {
         console.error("Vote failed:", response.data.message);
-        // Revert votes if there's an error
         setVotes(votes);
         setVotedType(null);
         sessionStorage.removeItem(`vote_${post._id}`);
       }
     } catch (error) {
       console.error("Error voting:", error);
-      // Revert votes if there's an error
       setVotes(votes);
       setVotedType(null);
       sessionStorage.removeItem(`vote_${post._id}`);
@@ -105,90 +103,89 @@ export function PostCard({ post }: PostCardProps) {
     }
   }, 150);
 
-  // get comments count from http://localhost:3000/api/coments/${post._id}
+  // Get comments count
   useEffect(() => {
+    axios.get(`${API}/api/comments/${post._id}`)
+      .then((response) => {
+        setCommentsCount(response.data.length);
+      })
+      .catch((error) => console.error("Error fetching comments count:", error));
+  }, [post._id]);
 
-    axios.get(`${API}/api/Comments/${post._id}`)
-    .then((response) => {
-      setCommentsCount(response.data.length);
-    })
-    .catch((error) => console.error("Error fetching comments count:", error));
-  }
-  , [post._id]);
   return (
     <Card className="w-full mt-4">
-      <CardHeader className="flex">
-
-        { post.locationType === "Den" ? 
-          <a href={`/d/${post.location._id}`} className="flex justify-start items-center gap-2 w-4/5 hover:underline">
-            d/{post.location.name} </a>
-          : 
-          <></>
-        }
-
-
-        <a href={`/u/${post.author._id}`} className="flex justify-start items-center gap-2 w-4/5 ">
-
-          <Avatar className="w-8 h-8 " >
+      <CardHeader className="flex-row justify-between items-center">
+        <div className="flex items-center gap-2">
+          <Avatar className="w-8 h-8">
             <AvatarImage src={post.author.avatar || "https://placeholder.com/300x300"} alt="avatar" />
             <AvatarFallback>{post.author.username.charAt(0)}</AvatarFallback>
           </Avatar>
-          <p className="text-sm font-medium ">u/{post.author.username} </p><span className="m-1 opacity-50 text-xs font-semibold">{formatDate(post.createdAt)}</span>
-        </a>
-        <CardDescription>{post.title}</CardDescription>
+          <div className="flex flex-col">
+            <a href={`/u/${post.author._id}`} className="text-sm font-semibold">u/{post.author.username}</a>
+            <span className="text-xs text-gray-500">{formatDate(post.createdAt)}</span>
+          </div>
+        </div>
+
+        <DropdownMenu>
+          <DropdownMenuTrigger>
+            <BsThreeDotsVertical className="w-5 h-5 cursor-pointer" />
+          </DropdownMenuTrigger>
+          <DropdownMenuContent>
+            <DropdownMenuLabel>Options</DropdownMenuLabel>
+            {post.author._id === localStorage.getItem('userId') && <DropdownMenuItem>Edit</DropdownMenuItem>}
+            <DropdownMenuSeparator />
+            <DropdownMenuItem>Save</DropdownMenuItem>
+            <DropdownMenuItem>Report</DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </CardHeader>
+
+      <CardDescription className="px-6">{post.title}</CardDescription>
 
       <CardContent>
         <p>{post.body}</p>
-        {post.image && <img src={post.image} alt="post" className="m-auto max-w-full max-h-96  object-contain rounded-xl" />}
-        {post.video && <video src={post.video} controls className="m-auto max-w-full max-h-96  object-contain rounded-xl" />}
-
+        {post.image && <img src={post.image} alt="post" className="m-auto max-w-full max-h-96 object-contain rounded-xl" />}
+        {post.video && (
+          <ReactPlayer
+            url={post.video}
+            controls
+            width={720}
+            height={480}
+            className=" "
+          />
+        )}
       </CardContent>
 
       <CardFooter className="p-2 flex justify-start items-center border-t-2">
         <div className="flex h-7 w-full mx-2 text-sm">
           <div className="flex justify-center items-center w-1/3">
-            <ToggleGroup type="single">
-              <ToggleGroupItem 
-                value="1" 
-                onClick={() => handleVote('upvote')} 
-                variant={votedType === 'upvote' ? 'outline' : 'default'} 
-                className={votedType === 'upvote' ? ' bg-emerald-500' : 'default'} 
-
-              >
-                <TbArrowBigUp className="w-4 h-4" />
-              </ToggleGroupItem>
-              <span>{votes}</span>
-              <ToggleGroupItem 
-                value="-1" 
-                onClick={() => handleVote('downvote')} 
-                variant={votedType === 'downvote' ? 'outline' : 'default'} 
-                className={votedType === 'downvote' ? ' bg-pink-500' : 'default'} 
-              >
-                <TbArrowBigDown  className="w-4 h-4"  />
-              </ToggleGroupItem>
-            </ToggleGroup>
+            <button 
+              onClick={() => handleVote('upvote')} 
+              className={`flex items-center justify-center w-8 h-8 rounded-full ${votedType === 'upvote' ? 'bg-emerald-500 text-white' : ''}`}
+            >
+              <TbArrowBigUp className="w-4 h-4" />
+            </button>
+            <span>{votes}</span>
+            <button 
+              onClick={() => handleVote('downvote')} 
+              className={`flex items-center justify-center w-8 h-8 rounded-full ${votedType === 'downvote' ? 'bg-pink-500 text-white' : ''}`}
+            >
+              <TbArrowBigDown className="w-4 h-4" />
+            </button>
           </div>
 
           <Separator orientation="vertical" />
           <a href={`/p/${post._id}`} className="flex justify-center items-center w-1/3 gap-1">
-        
-        
             <FaRegComment className="w-4 h-4" />
-            <span>{ CommentsCount }</span>
-            
-        
+            <span>{commentsCount}</span>
           </a>
-          
+
           <Separator orientation="vertical" />
           <a href="/" className="flex justify-center items-center w-1/3">
             <PiShareFatBold className="w-4 h-4" />
           </a>
         </div>
       </CardFooter>
-
-      {/* Render comments if there are any     <Comments postId={post._id} />  */}
- 
     </Card>
   );
 }

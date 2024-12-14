@@ -16,6 +16,7 @@ export interface Post {
 export interface location {
   _id: string;
   name: string;
+  avatar: string;
 }
 
 export interface User {
