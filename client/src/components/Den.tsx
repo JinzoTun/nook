@@ -110,9 +110,14 @@ function DenPage() {
             <Button onClick={handleJoinOrLeaveDen}>
               {isJoined ? "Leave" : "Join"}
             </Button>
-            <Button onClick={handleEditButton} variant="secondary">
-              Edit
-            </Button>
+
+            {/* Edit Button only if Author */}
+            {den.createdBy._id === localStorage.getItem("userId") && (
+              <Button onClick={handleEditButton} variant="secondary">
+                Edit
+              </Button>
+            )}
+      
           </div>
             <div>
               

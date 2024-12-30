@@ -1,6 +1,6 @@
 import Header from "@/components/Header";
 import SideBar from "@/components/SideBar";
-import DescriptionCard from "@/components/DescriptionCard";
+import LeftSidebar from "@/components/LeftSidebar";
 import React from "react";
 
 type HomeProps = {
@@ -19,14 +19,15 @@ export default function Home({ children }: HomeProps) {
         </div>
 
         {/* Main Content dynamically rendered */}
-        <div className="lg:w-3/5 w-full p-5 lg:ml-[20%] h-[calc(100vh-64px)] overflow-auto">
+        <div className="lg:w-3/5 w-full p-5 lg:ml-[20%]  pr-20">
           {children}
         </div>
 
         {/* CardDescription fixed to the right */}
-        <div className="hidden lg:block fixed top-16 right-0 lg:w-1/5 w-0 border-l-2 h-[calc(100vh-64px)] p-5">
-          <DescriptionCard />
-        </div>
+        <div className="flex">
+        <div className="hidden lg:block fixed mr-5 ml-12  top-16 right-0 lg:w-1/5 w-0 ">
+          <LeftSidebar  />
+        </div></div>
       </div>
     </>
   );

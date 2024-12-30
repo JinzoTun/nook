@@ -8,6 +8,7 @@ import { clearSessionVotes } from "@/utils/sessionUtils";
 import { FaPlus } from "react-icons/fa6";
 import { useUser } from "@/context/UserContext"; // Import the user context
 import { IoChatbubbleEllipsesOutline } from "react-icons/io5";
+import {ModeToggle} from "@/components/mode-toggle";
 
 import {
   DropdownMenu,
@@ -64,8 +65,8 @@ function Header() {
   };
 
   return (
-    <div className="sticky z-50 top-0 flex h-16 items-center gap-4 border-b bg-background px-4 md:px-6">
-      <header className="flex h-16 justify-between w-screen items-center p-4 border-b-2">
+    <div className="sticky z-50 top-0 flex h-16 items-center gap-4 border-b-2 bg-background px-4 md:px-6">
+      <header className="flex h-16 justify-between w-screen items-center p-4 ">
         <a className="text-3xl font-bold" href="/">Nook</a>
 
         <div className="flex w-full justify-center items-center">
@@ -82,6 +83,7 @@ function Header() {
         </div>
 
         <div className="flex items-center gap-4">
+          <ModeToggle />
           {!isAuthenticated ? (
             <Button onClick={handleSignIn}>Sign In</Button> // Render only when not authenticated
           ) : (

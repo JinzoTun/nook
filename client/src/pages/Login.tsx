@@ -6,9 +6,10 @@ import { useNavigate } from 'react-router-dom';
 import {login} from '@/api/Auth';
 import backgroud from '../assets/bg-login.jpg';
 import {fetchUser} from '@/api/User';
-
+import { useUser } from "@/context/UserContext";
    
   const Login: React.FC = () => {
+    const { refreshUser } = useUser();
 
     const [email, setEmail] = useState<string>('');
     const [password, setPassword] = useState<string>('');
@@ -41,6 +42,7 @@ import {fetchUser} from '@/api/User';
 
         // Redirect to home page
         navigate('/');
+        await refreshUser();
       } catch (error) {
         setError('Invalid email or password');
         console.error('Error logging in:', error);   }

@@ -28,6 +28,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
+import { useRecentPosts } from "@/hooks/useRecentPosts";
 interface PostCardProps {
   post: Post;
 }
@@ -36,7 +37,14 @@ export function PostCard({ post }: PostCardProps) {
   const [votes, setVotes] = useState(post.votes);
   const [votedType, setVotedType] = useState<'upvote' | 'downvote' | null>(null);
   const [isVoting, setIsVoting] = useState(false);
-  const [commentsCount, setCommentsCount] = useState<number>(0);
+  const { addRecentPost } = useRecentPosts();
+  
+  const commentsCount = post.comments.length;
+  
+  const handlePostClick = () => {
+    addRecentPost(post._id); // Add to recent posts on click
+    // Navigate to post detail page or perform other actions
+  };
 
   // Fetch all user votes for initial load and store them in session storage
   useEffect(() => {
@@ -103,17 +111,11 @@ export function PostCard({ post }: PostCardProps) {
     }
   }, 150);
 
-  // Get comments count
-  useEffect(() => {
-    axios.get(`${API}/api/comments/${post._id}`)
-      .then((response) => {
-        setCommentsCount(response.data.length);
-      })
-      .catch((error) => console.error("Error fetching comments count:", error));
-  }, [post._id]);
+
 
   return (
-    <Card className="w-full mt-4">
+    <Card onClick={handlePostClick} className="w-full mt-4">
+      <a href={`/p/${post._id}`} >
       <CardHeader className="flex-row justify-between items-center">
         <div className="flex items-center gap-2">
           <Avatar className="w-8 h-8">
@@ -151,7 +153,7 @@ export function PostCard({ post }: PostCardProps) {
             controls
             width={720}
             height={480}
-            className=" "
+            className=" m-auto max-w-full max-h-96 object-cover rounded-xl"
           />
         )}
       </CardContent>
@@ -185,7 +187,7 @@ export function PostCard({ post }: PostCardProps) {
             <PiShareFatBold className="w-4 h-4" />
           </a>
         </div>
-      </CardFooter>
+      </CardFooter></a>
     </Card>
   );
 }

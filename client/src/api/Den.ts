@@ -38,7 +38,6 @@ export async function LeaveDen(denId: string, token: string) {
     }
 }
 
-
 export async function CreateDen(den: Partial<Den>, token: string, avatar?: File, banner?: File) {
     try {
         const formData = new FormData();
@@ -65,8 +64,6 @@ export async function CreateDen(den: Partial<Den>, token: string, avatar?: File,
         throw error;
     }
 }
-
-
 
 export async function getDens() {
     try {
